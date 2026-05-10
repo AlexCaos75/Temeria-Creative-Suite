@@ -207,27 +207,52 @@
       0 0 18px rgba(255,90,90,0.12);
   }
 
-  .previewWrap{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:14px;
-    margin-top:18px;
-  }
+.previewWrap{
+  display:grid;
+
+  grid-template-columns:
+    minmax(0,1fr)
+    minmax(320px,520px);
+
+  gap:14px;
+  margin-top:18px;
+
+  align-items:start;
+
+  width:100%;
+}
+
+.previewWrap > *{
+  min-width:0;
+}
   @media (max-width:900px){ .previewWrap{grid-template-columns:1fr;} }
 
-  .panel{
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012)),
-      rgba(0,0,0,0.10);
-    border:1px solid rgba(0,246,255,0.16);
-    border-radius:18px;
-    overflow:hidden;
-    box-shadow:
-      0 18px 48px rgba(0,0,0,0.30),
-      0 0 26px rgba(0,246,255,0.10),
-      0 0 22px rgba(176,108,255,0.06);
-  }
+.panel{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.012)
+    ),
+    rgba(0,0,0,0.10);
 
+  border:1px solid rgba(0,246,255,0.16);
+
+  border-radius:18px;
+
+  overflow:hidden;
+
+  min-width:0;
+
+  box-shadow:
+    0 18px 48px rgba(0,0,0,0.30),
+    0 0 26px rgba(0,246,255,0.10),
+    0 0 22px rgba(176,108,255,0.06);
+}
+#previewHost{
+  overflow:auto;
+  max-width:100%;
+}
   .panelHead{
     display:flex;
     justify-content:space-between;
@@ -243,7 +268,10 @@
       radial-gradient(120% 180% at 90% 120%, rgba(176,108,255,0.06), transparent 60%),
       rgba(255,255,255,0.015);
   }
-  .panelBody{ padding:14px; }
+.panelBody{
+  padding:14px;
+  overflow:hidden;
+}
 
   pre{
     margin:0;
@@ -352,6 +380,7 @@ nasce la notte dei sogni.</textarea>
 </select>
 
 <label>Output Mode</label>
+
 <select id="outputMode">
   <option value="social_clean">Social Clean</option>
   <option value="image_focus">Image Focus</option>
@@ -361,6 +390,16 @@ nasce la notte dei sogni.</textarea>
   <option value="minimal">Minimal</option>
 </select>
 
+<label>Dimensione Card</label>
+
+<select id="cardSize">
+  <option value="small">Piccola</option>
+  <option value="medium" selected>Media</option>
+  <option value="large">Grande</option>
+  <option value="ultra">Ultra Wide</option>
+  <option value="square">Quadrata</option>
+  <option value="story">Story Verticale</option>
+</select>
 <label>Firma</label>
 <input id="firma" value="" />
 </div>
@@ -436,7 +475,7 @@ nasce la notte dei sogni.</textarea>
           <div class="rowBtns" style="margin-top:10px;">
             <button type="button" onclick="randomTheme()">Random Avanguardia</button>
             <button type="button" onclick="copyThemeJSON()">Copia Palette JSON</button>
-            <button type="button" onclick="applyThemeToUI()">Applica a UI</button>
+            <button type="button" onclick="applyThemeToUI()">Applica alla Card</button>
           </div>
 
           <div class="kpiRow">
@@ -514,7 +553,7 @@ nasce la notte dei sogni.</textarea>
         <div>
           <label>Miniatura (preview)</label>
           <div class="miniHint">Usa <code>img.youtube.com</code> (nessuna API richiesta)</div>
-          <img id="ytThumb" class="thumb" alt="YouTube thumbnail" src="" style="display:none;">
+          <div id="ytThumbContainer"></div>
           <div id="ytThumbNote" class="miniHint" style="margin-top:10px;opacity:.85;">Nessun ID selezionato.</div>
         </div>
       </div>
@@ -600,6 +639,30 @@ nasce la notte dei sogni.</textarea>
   </div>
 
 </div>
+
+<style>
+@keyframes ytPulse{
+
+  0%{
+    box-shadow:
+      0 0 20px rgba(255,0,0,.30),
+      0 0 45px rgba(255,0,0,.12);
+  }
+
+  50%{
+    box-shadow:
+      0 0 35px rgba(255,0,0,.55),
+      0 0 85px rgba(255,0,0,.28);
+  }
+
+  100%{
+    box-shadow:
+      0 0 20px rgba(255,0,0,.30),
+      0 0 45px rgba(255,0,0,.12);
+  }
+
+}
+</style>
 
 <script>
 /* =========================
@@ -819,7 +882,10 @@ function renderSwatches(theme){
   host.innerHTML = colors.map(c=> `<div class="sw" title="${c}" style="background:${c}"></div>`).join("");
 }
 function applyThemeVars(theme){
+
+  /*
   const gp = clamp01((theme.glowPower ?? 55)/100);
+
   document.documentElement.style.setProperty("--bg", theme.bg);
   document.documentElement.style.setProperty("--txt", theme.txt);
   document.documentElement.style.setProperty("--muted", `rgba(234,252,255,0.78)`);
@@ -833,6 +899,7 @@ function applyThemeVars(theme){
   document.documentElement.style.setProperty("--border2", hexToRgba(theme.accent3, "0.16"));
   document.documentElement.style.setProperty("--glow", hexToRgba(theme.accent, (0.10 + gp*0.22).toFixed(3)));
   document.documentElement.style.setProperty("--glow2", hexToRgba(theme.accent3, (0.06 + gp*0.18).toFixed(3)));
+  */
 
   renderSwatches(theme);
 }
@@ -913,7 +980,7 @@ async function copyThemeJSON(){
 ========================= */
 function saveFieldsToLocal(){
   try{
-   const ids = [
+const ids = [
   "titolo",
   "frase",
   "frase2",
@@ -921,6 +988,7 @@ function saveFieldsToLocal(){
   "textStyle",
   "cardStyle",
   "outputMode",
+  "cardSize",
   "firma",
 
   "gifurl",
@@ -1069,58 +1137,172 @@ function clearHistory(){
 /* =========================
    YouTube Hub
 ========================= */
+/* =========================
+   YouTube Hub
+========================= */
+
 function extractYouTubeId(input){
-  const s = (input || "").trim();
+
+  const s = String(input || "").trim();
+
   if(!s) return "";
-  if(/^[a-zA-Z0-9_-]{6,}$/.test(s) && !s.includes("http")) return s;
+
+  // Se è già un ID puro
+  if(/^[a-zA-Z0-9_-]{11}$/.test(s)){
+    return s;
+  }
 
   try{
-    const u = new URL(s);
-    const host = u.hostname.replace("www.","");
-    if(host==="youtu.be"){
-      const id = u.pathname.replace("/","").trim();
-      return id || "";
+
+    const url = new URL(s);
+
+    // youtube.com/watch?v=
+    const v = url.searchParams.get("v");
+    if(v) return v;
+
+    // youtu.be/ID
+    if(url.hostname.includes("youtu.be")){
+      return url.pathname.replace(/\//g,"").trim();
     }
-    if(host.includes("youtube.com")){
-      const v = u.searchParams.get("v");
-      if(v) return v;
-      const m1 = u.pathname.match(/\/shorts\/([a-zA-Z0-9_-]{6,})/);
-      if(m1) return m1[1];
-      const m2 = u.pathname.match(/\/embed\/([a-zA-Z0-9_-]{6,})/);
-      if(m2) return m2[1];
+
+    // shorts / embed / live
+    const parts = url.pathname.split("/").filter(Boolean);
+
+    const idxShorts = parts.indexOf("shorts");
+    if(idxShorts !== -1 && parts[idxShorts+1]){
+      return parts[idxShorts+1];
     }
+
+    const idxEmbed = parts.indexOf("embed");
+    if(idxEmbed !== -1 && parts[idxEmbed+1]){
+      return parts[idxEmbed+1];
+    }
+
+    const idxLive = parts.indexOf("live");
+    if(idxLive !== -1 && parts[idxLive+1]){
+      return parts[idxLive+1];
+    }
+
   }catch(e){
-    const m = s.match(/(?:v=|\/shorts\/|\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]{6,})/);
+
+    // fallback regex brutale
+    const m = s.match(/([a-zA-Z0-9_-]{11})/);
+
     if(m) return m[1];
   }
+
   return "";
 }
+
 function setThumb(id){
-  const img = document.getElementById("ytThumb");
+
+  const host = document.getElementById("ytThumbContainer");
   const note = document.getElementById("ytThumbNote");
+
+  if(!host || !note) return;
+
   if(!id){
-    img.style.display="none";
-    img.src="";
-    note.textContent="Nessun ID selezionato.";
+    host.innerHTML = "";
+    note.textContent = "Nessun ID selezionato.";
     return;
   }
-  img.src = `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
-  img.style.display="block";
+
+  const thumb = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+  const yt = `https://www.youtube.com/watch?v=${id}`;
+
+  host.innerHTML = `
+<div
+  style="
+    position:relative;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid rgba(0,246,255,0.18);
+  "
+>
+  <img
+    src="${thumb}"
+    style="width:100%;display:block;"
+  >
+
+  <a
+    href="${yt}"
+    target="_blank"
+    style="
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      background:rgba(0,0,0,0.18);
+    "
+  >
+    <div
+      style="
+        padding:16px 28px;
+        border-radius:999px;
+        background:red;
+        color:white;
+        font-weight:800;
+        font-size:22px;
+      "
+    >
+      ▶ Guarda su YouTube
+    </div>
+  </a>
+</div>
+`;
+
   note.textContent = "ID: " + id;
 }
 function pasteToAuto(){
-  const id = extractYouTubeId(document.getElementById("ytPaste").value);
-  if(!id){ alert("Nessun ID trovato nel link."); return; }
+  let raw = document.getElementById("ytPaste").value.trim();
+
+  if(!raw){
+    raw = document.getElementById("ytPreset").value.trim();
+  }
+
+  if(!raw){
+    raw = document.getElementById("ytid_auto").value.trim();
+  }
+
+  const id = extractYouTubeId(raw);
+
+  if(!id){
+    alert("Nessun ID trovato. Incolla un link YouTube, scegli un preset oppure lascia l’ID già presente.");
+    return;
+  }
+
   document.getElementById("ytid_auto").value = id;
   setThumb(id);
-  autoG();
+  genera();
 }
+
 function pasteToButtons(){
-  const id = extractYouTubeId(document.getElementById("ytPaste").value);
-  if(!id){ alert("Nessun ID trovato nel link."); return; }
+  let raw = document.getElementById("ytPaste").value.trim();
+
+  if(!raw){
+    raw = document.getElementById("ytPreset").value.trim();
+  }
+
+  if(!raw){
+    raw = document.getElementById("ytid_btn").value.trim();
+  }
+
+  if(!raw){
+    raw = document.getElementById("ytid_auto").value.trim();
+  }
+
+  const id = extractYouTubeId(raw);
+
+  if(!id){
+    alert("Nessun ID trovato. Incolla un link YouTube, scegli un preset oppure usa l’ID autoplay.");
+    return;
+  }
+
   document.getElementById("ytid_btn").value = id;
   setThumb(id);
-  autoG();
+  genera();
 }
 function applyYTPresetToAuto(){
   const id = document.getElementById("ytPreset").value;
@@ -1217,7 +1399,7 @@ const imglink = safeURL(document.getElementById("imglink").value);
   const minilink = safeURL(document.getElementById("minilink").value);
 
   const yta = (document.getElementById("ytid_auto").value || "").trim();
-  const ytb = (document.getElementById("ytid_btn").value || "").trim();
+ const ytb = (document.getElementById("ytid_btn").value || document.getElementById("ytid_auto").value || "").trim();
   const mp3 = safeURL(document.getElementById("mp3url").value);
 
   const mode  = document.getElementById("audioMode").value;
@@ -1227,6 +1409,7 @@ const video = safeURL(document.getElementById("videourl").value);
   const textStyle = document.getElementById("textStyle").value;
   const cardStyle = document.getElementById("cardStyle").value;
 const outputMode = document.getElementById("outputMode").value;
+const cardSize = document.getElementById("cardSize").value;
   const theme = getThemeFromUI();
   const gp = clamp01((theme.glowPower ?? 55)/100);
 
@@ -1270,34 +1453,166 @@ const bgMap = {
   social_white:bgSocialWhite
 };
 if(cardStyle === "social_white"){
+
   theme.txt = "#111111";
+
+  theme.accent = "#111111";
+  theme.accent2 = "#444444";
+  theme.accent3 = "#777777";
+
 }
   const cardBG = bgMap[cardStyle] || bgHolo;
 
   let mediaHTML = "";
 
-  if(mode==="yt_auto" && yta){
-    mediaHTML += `<div style="visibility:hidden;height:0;overflow:hidden;">
-<iframe src="https://www.youtube.com/embed/${yta}?autoplay=1&loop=1&playlist=${yta}"
-allow="autoplay; encrypted-media" frameborder="0"></iframe></div>`;
-  }
+if(mode==="yt_auto" && yta){
 
-  if(mode==="yt_buttons" && ytb){
-    mediaHTML += `<div style="margin:18px 0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-<button style="padding:10px 16px;border-radius:999px;border:1px solid ${btnBorder};background:${btnBg};color:${theme.accent};font-weight:bold;cursor:pointer;box-shadow:0 0 18px ${glowRGBA};"
-onclick="document.getElementById('ytp').src='https://www.youtube.com/embed/${ytb}?autoplay=1'">Ascolta</button>
-<button style="padding:10px 16px;border-radius:999px;border:1px solid ${btnBorder};background:${btnBg};color:${theme.accent};font-weight:bold;cursor:pointer;box-shadow:0 0 18px ${glowRGBA};"
-onclick="document.getElementById('ytp').src=''">Stop</button></div>
-<div style="visibility:hidden;height:0;overflow:hidden;"><iframe id="ytp" allow="autoplay"></iframe></div>`;
-  }
+const playerId =
+"ytAuto_" + Math.random().toString(36).slice(2);
+
+mediaHTML += `
+
+<!-- PLAYER AUTOPLAY INVISIBILE -->
+
+<div style="
+position:fixed;
+left:-9999px;
+top:-9999px;
+width:1px;
+height:1px;
+overflow:hidden;
+opacity:0.01;
+pointer-events:none;
+z-index:-1;
+">
+
+<iframe
+id="${playerId}"
+width="1"
+height="1"
+allow="
+autoplay;
+encrypted-media;
+fullscreen
+"
+allowfullscreen
+frameborder="0"
+src="
+https://www.youtube.com/embed/${yta}?autoplay=1&mute=0&loop=1&playlist=${yta}&playsinline=1
+">
+</iframe>
+
+</div>
+
+`;
+
+}
+
+if(mode==="yt_buttons" && ytb){
+
+const playerId =
+"ytBtn_" + Math.random().toString(36).slice(2);
+
+mediaHTML += `
+
+<div style="
+margin-top:15px;
+display:flex;
+gap:10px;
+justify-content:center;
+flex-wrap:wrap;
+">
+
+<button
+onclick="
+const p=document.getElementById('${playerId}');
+
+p.src='https://www.youtube.com/embed/${ytb}?autoplay=1&mute=0&playsinline=1';
+
+p.style.display='block';
+"
+style="
+padding:12px 18px;
+border:none;
+border-radius:999px;
+background:red;
+color:white;
+font-weight:bold;
+cursor:pointer;
+"
+>
+▶ PLAY
+</button>
+
+<button
+onclick="
+const p=document.getElementById('${playerId}');
+
+p.src='';
+
+p.style.display='none';
+"
+style="
+padding:12px 18px;
+border:none;
+border-radius:999px;
+background:#222;
+color:white;
+font-weight:bold;
+cursor:pointer;
+"
+>
+■ STOP
+</button>
+
+</div>
+
+<div style="
+position:fixed;
+left:-9999px;
+top:-9999px;
+width:1px;
+height:1px;
+overflow:hidden;
+opacity:0.01;
+pointer-events:none;
+z-index:-1;
+">
+<iframe
+id="${playerId}"
+width="1"
+height="1"
+style="
+display:none;
+border:none;
+border-radius:12px;
+box-shadow:0 0 20px rgba(0,0,0,.35);
+background:black;
+"
+allow="
+autoplay;
+encrypted-media;
+fullscreen
+"
+allowfullscreen
+frameborder="0">
+</iframe>
+
+</div>
+
+`;
+
+}
 
   if(mode==="mp3" && mp3){
+    const audId =
+"aud_" + Math.random().toString(36).slice(2);
     mediaHTML += `<div style="margin:18px 0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
 <button style="padding:10px 16px;border-radius:999px;border:1px solid ${btnBorder};background:${btnBg};color:${theme.accent};font-weight:bold;cursor:pointer;box-shadow:0 0 18px ${glowRGBA};"
-onclick="document.getElementById('aud').play()">Ascolta</button>
+onclick="document.getElementById('${audId}').play()">Ascolta</button>
 <button style="padding:10px 16px;border-radius:999px;border:1px solid ${btnBorder};background:${btnBg};color:${theme.accent};font-weight:bold;cursor:pointer;box-shadow:0 0 18px ${glowRGBA};"
-onclick="document.getElementById('aud').pause()">Stop</button></div>
-<audio id="aud" loop><source src="${mp3}" type="audio/mpeg"></audio>`;
+onclick="document.getElementById('${audId}').pause()">Stop</button></div>
+<audio id="${audId}" loop><source src="${mp3}" type="audio/mpeg"></audio>`;
   }
 
   if(video){
@@ -1307,15 +1622,82 @@ onclick="document.getElementById('aud').pause()">Stop</button></div>
   const missingGifNote = !gif ? `<div style="margin:10px 0;opacity:.75;font-size:13px;">(Nessuna immagine impostata)</div>` : "";
 
 const imgStyle = cardStyle === "social_white"
-  ? "max-width:100%;border-radius:14px;margin-top:12px;border:1px solid rgba(0,0,0,0.10);box-shadow:0 6px 18px rgba(0,0,0,0.10);"
-  : `max-width:100%;border-radius:16px;margin-top:18px;border:1px solid ${borderSoft};box-shadow:0 0 18px ${glowRGBA};`;
+  ? `
+    width:100%;
+    display:block;
+    margin:auto;
+    box-sizing:border-box;
+    border-radius:14px;
+
+    border:1px solid rgba(0,0,0,0.10);
+
+    box-shadow:
+      0 6px 18px rgba(0,0,0,0.10);
+
+    object-fit:contain;
+  `
+  : `
+    width:100%;
+    display:block;
+    margin:auto;
+
+    border-radius:16px;
+
+    border:1px solid ${borderSoft};
+
+    box-shadow:
+      0 0 18px ${glowRGBA};
+
+    object-fit:contain;
+  `;
+
+const imageFrameStyle = cardStyle === "social_white"
+? `
+  margin-top:18px;
+  padding:14px;
+  border-radius:24px;
+  background:#ffffff;
+  border:1px solid rgba(0,0,0,0.08);
+  box-sizing:border-box;
+  overflow:hidden;
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.05),
+    inset 0 1px 0 rgba(255,255,255,.80);
+`
+: `
+  margin-top:18px;
+  padding:14px;
+  border-radius:24px;
+  box-sizing:border-box;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 20% 10%, ${hexToRgba(theme.accent, "0.22")}, transparent 45%),
+    radial-gradient(circle at 80% 90%, ${hexToRgba(theme.accent3, "0.20")}, transparent 50%),
+    linear-gradient(
+      135deg,
+      ${hexToRgba(theme.accent2, "0.10")},
+      ${hexToRgba(theme.bg, "0.35")}
+    );
+
+  border:1px solid ${borderSoft};
+
+  box-shadow:
+    0 0 22px ${glowRGBA},
+    0 0 55px ${glow2RGBA},
+    inset 0 1px 0 rgba(255,255,255,.12);
+
+`;
 
 const mainImgHTML = gif
   ? (imglink
-      ? `<a href="${escapeHTML(imglink)}" target="_blank" rel="noopener">
-           <img src="${gif}" style="${imgStyle}cursor:pointer;">
-         </a>`
-      : `<img src="${gif}" style="${imgStyle}">`)
+      ? `<div style="${imageFrameStyle}">
+           <a href="${escapeHTML(imglink)}" target="_blank" rel="noopener">
+             <img src="${gif}" style="${imgStyle}cursor:pointer;margin-top:0;">
+           </a>
+         </div>`
+      : `<div style="${imageFrameStyle}">
+           <img src="${gif}" style="${imgStyle}margin-top:0;">
+         </div>`)
   : missingGifNote;
   const miniHTML = mini
     ? (minilink
@@ -1372,8 +1754,44 @@ if(outputMode === "minimal"){
   hideText = true;
   cardPadding = "8px";
 }
+let cardWidth = "760px";
+let cardMinHeight = "auto";
+
+if(cardSize === "small"){
+  cardWidth = "420px";
+}
+
+if(cardSize === "medium"){
+  cardWidth = "760px";
+}
+
+if(cardSize === "large"){
+  cardWidth = "980px";
+}
+
+if(cardSize === "ultra"){
+  cardWidth = "1280px";
+}
+
+if(cardSize === "square"){
+  cardWidth = "700px";
+  cardMinHeight = "700px";
+}
+
+if(cardSize === "story"){
+  cardWidth = "420px";
+  cardMinHeight = "760px";
+}
   const card = `
-<div style="text-align:center;max-width:${maxWidth};margin:auto;padding:${cardPadding};
+<div style="
+text-align:center;
+
+width:100%;
+max-width:${cardWidth};
+
+box-sizing:border-box;
+overflow:hidden;
+min-height:${cardMinHeight};margin:auto;padding:${cardPadding};
 background:${cardBG};${extraSheen}
 border-radius:${cardStyle==="social_white" ? "18px" : "26px"};
 color:${theme.txt};
@@ -1415,8 +1833,16 @@ ${cinematicFX}">
 }
 
 function genera(){
+
   const card = buildCardHTML();
-  document.getElementById("previewHost").innerHTML = card;
+
+  const host =
+    document.getElementById("previewHost");
+
+  if(host.innerHTML !== card){
+    host.innerHTML = card;
+  }
+
   document.getElementById("codeBox").textContent = card;
 
   saveFieldsToLocal();
@@ -1492,8 +1918,19 @@ document.getElementById("frase").value = "";
   document.getElementById("previewHost").innerHTML = "";
   document.getElementById("codeBox").textContent = "";
 
-  document.getElementById("themePreset").value = "cyber_aurora";
-  onPresetChange();
+document.getElementById("themePreset").value = "custom";
+
+document.getElementById("c_bg").value = "#ffffff";
+document.getElementById("c_txt").value = "#111111";
+
+document.getElementById("c_accent").value = "#ffffff";
+document.getElementById("c_accent2").value = "#ffffff";
+document.getElementById("c_accent3").value = "#ffffff";
+document.getElementById("c_accent4").value = "#ffffff";
+
+document.getElementById("glowPower").value = "0";
+
+onCustomChange();
 
   autoG();
 }
@@ -1800,8 +2237,9 @@ function toggleAutoGenerate(){
   });
 
   // hook all inputs for auto-generate + autosave
- const ids = [
-  "titolo","frase","frase2","emoticons","textStyle","cardStyle","outputMode","firma",
+const ids = [
+  "titolo","frase","frase2","emoticons",
+  "textStyle","cardStyle","outputMode","cardSize","firma",
     "gifurl","imglink","minigif","minilink",
     "ytid_auto","ytid_btn","mp3url","audioMode","videourl",
     "ytPaste","ytPreset"
