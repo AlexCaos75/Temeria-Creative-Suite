@@ -1619,7 +1619,32 @@ onclick="document.getElementById('${audId}').pause()">Stop</button></div>
     mediaHTML += `<video src="${video}" controls style="width:100%;border-radius:16px;margin-top:10px;border:1px solid ${borderSoft};box-shadow:0 0 18px ${glow2RGBA};"></video>`;
   }
 
-  const missingGifNote = !gif ? `<div style="margin:10px 0;opacity:.75;font-size:13px;">(Nessuna immagine impostata)</div>` : "";
+  const missingGifNote = !gif
+? `
+<div style="margin-top:18px;text-align:center;">
+
+<img
+src="https://i.postimg.cc/x8FrS9TM/Nyang-Piumy-(1).gif"
+style="
+width:90px;
+height:90px;
+object-fit:cover;
+border-radius:50%;
+box-shadow:0 0 18px rgba(255,0,120,.35);
+border:3px solid rgba(255,255,255,.75);
+">
+
+<div style="
+margin-top:10px;
+opacity:.72;
+font-size:13px;
+">
+Nessuna immagine impostata
+</div>
+
+</div>
+`
+: "";
 
 const imgStyle = cardStyle === "social_white"
   ? `
