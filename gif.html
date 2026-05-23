@@ -1,10 +1,4 @@
-from pathlib import Path
-import zipfile
-
-base = Path("/mnt/data/temeria_gif_cards_auto_publish")
-base.mkdir(exist_ok=True)
-
-gif_html = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -641,14 +635,3 @@ h1{
 </div>
 </body>
 </html>
-'''
-
-(base / "gif.html").write_text(gif_html, encoding="utf-8")
-(base / "gif-cards.html").write_text(gif_cards_html, encoding="utf-8")
-
-zip_path = Path("/mnt/data/temeria_gif_cards_auto_publish.zip")
-with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-    z.write(base / "gif.html", arcname="gif.html")
-    z.write(base / "gif-cards.html", arcname="gif-cards.html")
-
-print(zip_path)
