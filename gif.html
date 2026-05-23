@@ -1,2296 +1,707 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Temeria Media Forge – Interplanetary</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎞️ Temeria GIF/Card Tab Generator</title>
 
 <style>
-  :root{
-    --bg:#070a12;
-
-    --panel: rgba(255,255,255,0.04);
-    --panel2: rgba(255,255,255,0.02);
-
-    --border: rgba(120,255,255,0.22);
-    --border2: rgba(175,120,255,0.16);
-
-    --txt:#eafcff;
-    --muted: rgba(234,252,255,0.78);
-
-    --accent:#00f6ff;
-    --accent2:#7fffd9;
-    --accent3:#b06cff;
-    --accent4:#6cff9f;
-
-    --glow: rgba(0,246,255,0.20);
-    --glow2: rgba(176,108,255,0.14);
-
-    --field: rgba(9,16,30,0.72);
-    --field2: rgba(9,16,30,0.86);
-
-    --shadow: 0 22px 70px rgba(0,0,0,0.45);
-    --inner: inset 0 1px 0 rgba(255,255,255,0.06);
-  }
-
-  body{
-    margin:0;
-    background:
-      radial-gradient(1000px 520px at 50% -12%, rgba(0,246,255,0.18), transparent 58%),
-      radial-gradient(820px 420px at 14% 18%, rgba(0,160,255,0.14), transparent 60%),
-      radial-gradient(820px 420px at 86% 26%, rgba(176,108,255,0.14), transparent 60%),
-      radial-gradient(900px 520px at 50% 120%, rgba(108,255,159,0.07), transparent 62%),
-      linear-gradient(180deg, rgba(255,255,255,0.02), transparent 18%),
-      var(--bg);
-    font-family:"Trebuchet MS", Arial, sans-serif;
-    color:var(--txt);
-    overflow-x:hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  .stars{
-    position:fixed; inset:0; pointer-events:none; opacity:.32;
-    background-image:
-      radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.90), transparent 60%),
-      radial-gradient(1px 1px at 25% 80%, rgba(255,255,255,.90), transparent 60%),
-      radial-gradient(1px 1px at 40% 30%, rgba(255,255,255,.90), transparent 60%),
-      radial-gradient(1px 1px at 65% 70%, rgba(255,255,255,.90), transparent 60%),
-      radial-gradient(1px 1px at 78% 18%, rgba(255,255,255,.90), transparent 60%),
-      radial-gradient(1px 1px at 90% 55%, rgba(255,255,255,.90), transparent 60%),
-      radial-gradient(1px 1px at 55% 10%, rgba(255,255,255,.70), transparent 60%),
-      radial-gradient(1px 1px at 5% 55%, rgba(255,255,255,.70), transparent 60%),
-      radial-gradient(1px 1px at 48% 82%, rgba(255,255,255,.80), transparent 60%);
-    filter:
-      drop-shadow(0 0 10px rgba(0,246,255,.18))
-      drop-shadow(0 0 18px rgba(176,108,255,.10));
-    animation: twinkle 7s infinite ease-in-out alternate;
-  }
-  @keyframes twinkle{ from{opacity:.22} to{opacity:.44} }
-
-  h1{
-    text-align:center;
-    margin:28px 12px 0;
-    font-family:"Orbitron",sans-serif;
-    color:#d9feff;
-    letter-spacing:3px;
-    text-shadow:
-      0 0 22px rgba(0,246,255,0.52),
-      0 0 44px rgba(176,108,255,0.18);
-  }
-  .sub{
-    text-align:center;
-    margin:10px 12px 0;
-    color: var(--muted);
-    letter-spacing:1px;
-  }
-
-  .box{
-    max-width:1020px;
-    margin:18px auto 24px;
-    padding:22px;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.018)),
-      radial-gradient(900px 420px at 30% -40%, rgba(0,246,255,0.10), transparent 55%),
-      radial-gradient(900px 420px at 90% 20%, rgba(176,108,255,0.08), transparent 55%);
-    border-radius:18px;
-    border:1px solid rgba(120,255,255,0.18);
-    box-shadow:
-      var(--shadow),
-      0 0 26px rgba(0,246,255,0.14),
-      0 0 42px rgba(176,108,255,0.08);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-
-  .grid{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:14px;
-  }
-  @media (max-width:900px){ .grid{grid-template-columns:1fr;} }
-
-  label{
-    display:block;
-    margin-top:10px;
-    font-weight:bold;
-    color: rgba(127,255,217,0.92);
-    text-shadow: 0 0 12px rgba(0,246,255,0.10);
-  }
-
-  input,textarea,select{
-    width:100%;
-    padding:10px 11px;
-    border-radius:12px;
-    border:1px solid rgba(0,246,255,0.30);
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
-      var(--field);
-    color:var(--txt);
-    margin-top:6px;
-    outline:none;
-    box-sizing:border-box;
-    box-shadow:
-      var(--inner),
-      0 0 0 1px rgba(0,246,255,0.06),
-      0 10px 26px rgba(0,0,0,0.25);
-    transition: .16s border-color ease, .16s box-shadow ease, .16s filter ease;
-  }
-  textarea{resize:vertical;}
-
-  input:focus, textarea:focus, select:focus{
-    border-color: rgba(0,246,255,0.70);
-    box-shadow:
-      var(--inner),
-      0 0 0 2px rgba(0,246,255,0.16),
-      0 0 26px rgba(0,246,255,0.12),
-      0 0 22px rgba(176,108,255,0.08);
-    filter: brightness(1.03);
-  }
-
-  .rowBtns{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-top:18px;
-  }
-
-  button{
-    padding:12px 18px;
-    border-radius:999px;
-    border:1px solid rgba(0,246,255,0.48);
-    background:
-      radial-gradient(120% 220% at 20% -40%, rgba(0,246,255,0.28), transparent 55%),
-      radial-gradient(120% 220% at 90% 120%, rgba(176,108,255,0.18), transparent 55%),
-      linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-    color: rgba(210,255,255,0.96);
-    font-weight:800;
-    letter-spacing:.4px;
-    cursor:pointer;
-    transition:.15s transform ease, .15s filter ease, .15s box-shadow ease, .15s border-color ease;
-    user-select:none;
-    box-shadow:
-      var(--inner),
-      0 10px 26px rgba(0,0,0,0.32),
-      0 0 24px rgba(0,246,255,0.10);
-  }
-  button:hover{
-    transform: translateY(-1px);
-    filter:brightness(1.08);
-    border-color: rgba(0,246,255,0.72);
-    box-shadow:
-      var(--inner),
-      0 16px 34px rgba(0,0,0,0.38),
-      0 0 30px rgba(0,246,255,0.16),
-      0 0 22px rgba(176,108,255,0.10);
-  }
-  button:active{ transform: translateY(0px) scale(.99); }
-
-  button:disabled{
-    opacity:.45;
-    cursor:not-allowed;
-    filter:saturate(.7);
-    transform:none;
-  }
-
-  .danger{
-    border-color: rgba(255,90,90,.70);
-    color: rgba(255,180,180,1);
-    background:
-      radial-gradient(120% 220% at 20% -40%, rgba(255,90,90,0.20), transparent 55%),
-      linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-    box-shadow:
-      var(--inner),
-      0 10px 26px rgba(0,0,0,0.32),
-      0 0 18px rgba(255,90,90,0.12);
-  }
-
-.previewWrap{
-  display:grid;
-
-  grid-template-columns:
-    minmax(0,1fr)
-    minmax(320px,520px);
-
-  gap:14px;
-  margin-top:18px;
-
-  align-items:start;
-
-  width:100%;
+:root{
+  --bg:#070a12;
+  --panel:#111827;
+  --panel2:#1f2937;
+  --txt:#eafcff;
+  --muted:#a8c7d8;
+  --cyan:#00f6ff;
+  --violet:#b06cff;
+  --green:#25d366;
+  --pink:#ff4fd8;
+  --gold:#facc15;
 }
 
-.previewWrap > *{
-  min-width:0;
-}
-  @media (max-width:900px){ .previewWrap{grid-template-columns:1fr;} }
+*{box-sizing:border-box;}
 
-.panel{
+body{
+  margin:0;
+  min-height:100vh;
+  padding:24px;
   background:
-    linear-gradient(
-      180deg,
-      rgba(255,255,255,0.03),
-      rgba(255,255,255,0.012)
-    ),
-    rgba(0,0,0,0.10);
+    radial-gradient(circle at top,#182033,#070a12 58%,#020617),
+    linear-gradient(135deg,#020617,#111827);
+  color:var(--txt);
+  font-family:Arial, sans-serif;
+}
 
-  border:1px solid rgba(0,246,255,0.16);
+.container{
+  max-width:1180px;
+  margin:auto;
+}
 
-  border-radius:18px;
+h1{
+  text-align:center;
+  margin:10px 0 6px;
+  font-size:34px;
+  color:var(--cyan);
+  text-shadow:0 0 20px var(--cyan),0 0 45px var(--violet);
+}
 
-  overflow:hidden;
+.subtitle{
+  text-align:center;
+  color:var(--muted);
+  margin-bottom:22px;
+}
 
-  min-width:0;
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
 
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr;}
+  body{padding:14px;}
+}
+
+.box{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02)),
+    var(--panel);
+  border:1px solid rgba(0,246,255,.22);
+  border-radius:22px;
+  padding:18px;
   box-shadow:
-    0 18px 48px rgba(0,0,0,0.30),
-    0 0 26px rgba(0,246,255,0.10),
-    0 0 22px rgba(176,108,255,0.06);
+    0 0 35px rgba(0,246,255,.08),
+    0 0 55px rgba(176,108,255,.08),
+    0 22px 60px rgba(0,0,0,.35);
 }
-#previewHost{
-  overflow:auto;
-  max-width:100%;
+
+label{
+  display:block;
+  margin-top:13px;
+  font-weight:bold;
+  color:#8dfcff;
 }
-  .panelHead{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:12px 14px;
-    border-bottom:1px solid rgba(0,246,255,0.16);
-    font-family:"Orbitron",sans-serif;
-    letter-spacing:1px;
-    color:#d9feff;
-    text-shadow: 0 0 18px rgba(0,246,255,0.18);
-    background:
-      radial-gradient(120% 180% at 10% -30%, rgba(0,246,255,0.10), transparent 60%),
-      radial-gradient(120% 180% at 90% 120%, rgba(176,108,255,0.06), transparent 60%),
-      rgba(255,255,255,0.015);
-  }
-.panelBody{
-  padding:14px;
+
+input, textarea, select{
+  width:100%;
+  margin-top:6px;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid rgba(0,246,255,.28);
+  background:#0b1220;
+  color:white;
+  outline:none;
+}
+
+textarea{
+  resize:vertical;
+  min-height:80px;
+}
+
+button, .link-btn{
+  display:inline-block;
+  border:none;
+  border-radius:999px;
+  padding:12px 18px;
+  margin:6px 6px 0 0;
+  cursor:pointer;
+  font-weight:bold;
+  text-decoration:none;
+  color:white;
+  background:linear-gradient(90deg,var(--cyan),var(--violet));
+  box-shadow:0 0 22px rgba(176,108,255,.28);
+}
+
+button.green, .link-btn.green{
+  background:linear-gradient(90deg,#25d366,#4bf58a);
+  color:#052e16;
+}
+
+button.dark{
+  background:linear-gradient(90deg,#334155,#111827);
+}
+
+button.danger{
+  background:linear-gradient(90deg,#ef4444,#fb7185);
+}
+
+.preview-card{
+  overflow:hidden;
+  border-radius:22px;
+  border:1px solid rgba(176,108,255,.25);
+  background:linear-gradient(135deg,#0b1020,#151a33);
+  box-shadow:0 0 35px rgba(176,108,255,.16);
+}
+
+.preview-media{
+  width:100%;
+  aspect-ratio:16/9;
+  background:#020617;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   overflow:hidden;
 }
 
-  pre{
-    margin:0;
-    white-space:pre-wrap;
-    word-break:break-word;
-    background:
-      radial-gradient(120% 220% at 10% -30%, rgba(0,246,255,0.07), transparent 55%),
-      radial-gradient(120% 220% at 90% 120%, rgba(176,108,255,0.05), transparent 55%),
-      rgba(5,10,18,0.86);
-    border-radius:14px;
-    padding:12px;
-    border:1px solid rgba(0,246,255,0.16);
-    max-height:520px;
-    overflow:auto;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.05),
-      0 12px 32px rgba(0,0,0,0.35);
-  }
+.preview-media img,
+.preview-media video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
 
-  .miniHint{
-    font-size:12px;
-    color: var(--muted);
-    margin-top:8px;
-    line-height:1.35;
-  }
+.preview-body{
+  padding:16px;
+}
 
-  .pill{
-    display:inline-block;
-    padding:4px 10px;
-    border-radius:999px;
-    border:1px solid rgba(0,246,255,0.20);
-    background:
-      radial-gradient(120% 220% at 15% -40%, rgba(0,246,255,0.10), transparent 55%),
-      rgba(0,246,255,0.045);
-    margin-right:6px;
-    margin-bottom:6px;
-    font-size:12px;
-    opacity:.92;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-  }
+.badge{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:999px;
+  background:rgba(0,246,255,.12);
+  color:#8dfcff;
+  font-size:12px;
+  border:1px solid rgba(0,246,255,.25);
+  margin-bottom:10px;
+}
 
-  #themeSwatches .sw{
-    width:34px;height:34px;border-radius:12px;
-    border:1px solid rgba(255,255,255,0.18);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 10px 24px rgba(0,0,0,0.25);
-  }
+.preview-title{
+  font-size:24px;
+  font-weight:bold;
+  color:white;
+  text-shadow:0 0 16px rgba(0,246,255,.28);
+  margin-bottom:8px;
+}
 
-  .kpiRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-  .kpi{
-    padding:8px 10px;border-radius:14px;
-    border:1px solid rgba(0,246,255,0.16);
-    background: rgba(255,255,255,0.02);
-    font-size:12px; opacity:.9;
-  }
+.preview-desc{
+  color:#cbd5e1;
+  line-height:1.55;
+}
 
-  .thumb{
-    width:100%;
-    border-radius:16px;
-    border:1px solid rgba(0,246,255,0.18);
-    box-shadow: 0 0 18px rgba(0,246,255,0.10);
-    margin-top:10px;
-  }
+pre{
+  white-space:pre-wrap;
+  word-break:break-word;
+  background:#020617;
+  color:#d9faff;
+  border:1px solid rgba(0,246,255,.22);
+  border-radius:16px;
+  padding:14px;
+  min-height:260px;
+  max-height:520px;
+  overflow:auto;
+}
+
+.small-note{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+  margin-top:10px;
+}
 </style>
 </head>
 
 <body>
-<div class="stars"></div>
+<div class="container">
 
-<h1>TEMERIA MEDIA FORGE</h1>
-<div class="sub">Ultra: Theme Lab + YouTube Hub + Auto-genera + History + Update System + Migrazione</div>
-
-<div class="box">
+  <h1>🎞️ Temeria GIF/Card Tab Generator</h1>
+  <div class="subtitle">
+    Incolla il link pubblicato dal Forge e crea il blocco pronto per la pagina GIF/Card di Alex Creative.
+  </div>
 
   <div class="grid">
-    <div>
+
+    <div class="box">
+      <h2>✨ Dati Card</h2>
+
+      <label>Link card pubblicata dal Forge</label>
+      <input id="cardUrl" placeholder="https://alexcaos75.github.io/Temeria-Media-Suite/cards/nome-card.html">
+
       <label>Titolo</label>
-      <input id="titolo" value="" />
+      <input id="title" placeholder="Es. Buonanotte Temeria">
 
-      <label>Frase Poetica</label>
-      <textarea id="frase" rows="3">È una melodia notturna,
-dedicata a chi ascolta dal balcone del cielo.
-Dove TGIF incontra la luna,
-nasce la notte dei sogni.</textarea>
-
-      <label>Frase Poetica Finale (opzionale)</label>
-      <textarea id="frase2" rows="2" placeholder="Un ultimo pensiero che resta…"></textarea>
-
-      <label>Emoji / Simboli (opzionale)</label>
-      <input id="emoticons" placeholder="🌙 ✨ 💫 🩵" />
-
-      <label>Stile Testo</label>
-      <select id="textStyle">
-        <option value="normal">Classico</option>
-        <option value="dream">Sognante</option>
-        <option value="neon">Neon poetico</option>
+      <label>Categoria</label>
+      <select id="category">
+        <option>Buongiorno</option>
+        <option>Buonanotte</option>
+        <option>Temeria</option>
+        <option>Musica</option>
+        <option>Eventi</option>
+        <option>Speciali</option>
       </select>
 
-    <label>Stile Card</label>
-<select id="cardStyle">
-  <option value="holo">Holo Glass (pro)</option>
-  <option value="nebula">Nebula (cinematic)</option>
-  <option value="glass">Glass Clean</option>
-  <option value="classic">Classic Neon</option>
-  <option value="minimal">Minimal Lux</option>
-  <option value="social_white">Social White</option>
-</select>
+      <label>Descrizione breve</label>
+      <textarea id="desc" placeholder="Piccola descrizione poetica della card..."></textarea>
 
-<label>Output Mode</label>
+      <label>Preview immagine / GIF / MP4</label>
+      <input id="previewUrl" placeholder="https://...png / .gif / .mp4 / .webm">
 
-<select id="outputMode">
-  <option value="social_clean">Social Clean</option>
-  <option value="image_focus">Image Focus</option>
-  <option value="music_focus">Music Focus</option>
-  <option value="video_focus">Video Focus</option>
-  <option value="cinematic">Cinematic</option>
-  <option value="minimal">Minimal</option>
-</select>
-
-<label>Dimensione Card</label>
-
-<select id="cardSize">
-  <option value="small">Piccola</option>
-  <option value="medium" selected>Media</option>
-  <option value="large">Grande</option>
-  <option value="ultra">Ultra Wide</option>
-  <option value="square">Quadrata</option>
-  <option value="story">Story Verticale</option>
-</select>
-<label>Firma</label>
-<input id="firma" value="" />
-</div>
-    <div>
-      <label>GIF/Immagine URL (card principale)</label>
-      <input id="gifurl" value="https://i.postimg.cc/x8FrS9TM/Nyang-Piumy-(1).gif" />
-
-      <label>Oppure carica immagine/GIF dal PC (DataURL)</label>
-      <input id="giffile" type="file" accept="image/*" />
-
-      <label>Link quando clicco l’immagine (opzionale)</label>
-      <input id="imglink" placeholder="https://..." />
-
-      <label>Mini Logo / Sigillo (opzionale)</label>
-      <input id="minigif" placeholder="https://...png / gif" />
-
-      <label>Oppure carica mini-logo dal PC (DataURL)</label>
-      <input id="minifile" type="file" accept="image/*" />
-
-      <label>Link quando clicco il mini-logo (opzionale)</label>
-      <input id="minilink" placeholder="https://..." />
-
-      <label>YouTube ID (autoplay)</label>
-      <input id="ytid_auto" value="pa4mTtiy4Lw" />
-
-      <label>YouTube ID (con tasti)</label>
-      <input id="ytid_btn" placeholder="ID YouTube per play manuale" />
-
-      <label>MP3 URL (fallback)</label>
-      <input id="mp3url" placeholder="https://tuosito.it/audio.mp3" />
-
-      <label>Modalità Audio</label>
-      <select id="audioMode">
-        <option value="yt_auto">YouTube autoplay</option>
-        <option value="yt_buttons">YouTube con tasti</option>
-        <option value="mp3">MP3 con tasti</option>
+      <label>Tipo preview</label>
+      <select id="previewType">
+        <option value="auto">Auto</option>
+        <option value="image">Immagine / GIF</option>
+        <option value="video">Video MP4/WebM</option>
       </select>
 
-      <label>Video MP4 (opzionale)</label>
-      <input id="videourl" placeholder="http://.../video.mp4" />
+      <div style="margin-top:16px;">
+        <button onclick="generateTab()">⚡ Genera Tab</button>
+        <button class="green" onclick="copyCode()">📋 Copia Codice</button>
+        <button class="dark" onclick="downloadHTML()">⬇️ Scarica Blocco</button>
+        <button class="danger" onclick="resetForm()">Reset</button>
+      </div>
+
+      <div class="small-note">
+        Consiglio: per animazioni leggere usa MP4 brevi in loop. La pagina li mostrerà come “GIF card”, ma saranno più fluidi.
+      </div>
     </div>
+
+    <div class="box">
+      <h2>👁️ Anteprima</h2>
+      <div id="previewHost"></div>
+    </div>
+
   </div>
 
-  <div class="rowBtns">
-    <button onclick="genera()">Genera Card</button>
-    <button type="button" onclick="toggleAutoGenerate()">Auto-genera ON/OFF</button>
-<button type="button" onclick="genera()">Aggiorna Preview</button>
-    <button onclick="copiaCodice()">Copia Codice Card</button>
-    <button onclick="salvaCard()">Scarica Card HTML</button>
-    <button onclick="salvaGenerator()">Scarica questo Generatore</button>
-    <button class="danger" onclick="resetCampi()">Reset</button>
-  </div>
-
-  <!-- THEME LAB -->
-  <div class="panel" style="margin-top:16px;">
-    <div class="panelHead">
-      <div>THEME LAB</div>
-      <div style="opacity:.7;font-size:12px;">palette + glow + avanguardia</div>
-    </div>
-    <div class="panelBody">
-      <div class="grid">
-        <div>
-          <label>Preset Palette</label>
-          <select id="themePreset">
-            <option value="cyber_aurora">Cyber Aurora (Cyan/Violet)</option>
-            <option value="gold_neon">Gold Neon (Teal/Gold)</option>
-            <option value="crimson_nebula">Crimson Nebula (Magenta/Cyan)</option>
-            <option value="ice_quantum">Ice Quantum (Glaciale/Tech)</option>
-            <option value="obsidian_lux">Obsidian Lux (Dark/Luxury)</option>
-            <option value="custom">Custom (manuale)</option>
-          </select>
-
-          <div class="rowBtns" style="margin-top:10px;">
-            <button type="button" onclick="randomTheme()">Random Avanguardia</button>
-            <button type="button" onclick="copyThemeJSON()">Copia Palette JSON</button>
-            <button type="button" onclick="applyThemeToUI()">Applica alla Card</button>
-          </div>
-
-          <div class="kpiRow">
-            <div class="kpi" id="kpiAuto">Auto-genera: ON</div>
-            <div class="kpi" id="kpiSave">Autosave: ON</div>
-            <div class="kpi" id="kpiHist">History: 0</div>
-          </div>
-
-          <div class="miniHint" style="margin-top:10px;">
-            Influenza: <span class="pill">UI</span> <span class="pill">Card</span> <span class="pill">Glow</span> <span class="pill">Bordi</span> <span class="pill">Bottoni audio</span>
-          </div>
-        </div>
-
-        <div>
-          <label>Colori Custom (live)</label>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
-            <div><label style="margin-top:0;">Background</label><input id="c_bg" type="color" value="#070a12"></div>
-            <div><label style="margin-top:0;">Testo</label><input id="c_txt" type="color" value="#eafcff"></div>
-            <div><label>Accent 1</label><input id="c_accent" type="color" value="#00f6ff"></div>
-            <div><label>Accent 2</label><input id="c_accent2" type="color" value="#7fffd9"></div>
-            <div><label>Accent 3</label><input id="c_accent3" type="color" value="#b06cff"></div>
-            <div><label>Accent 4</label><input id="c_accent4" type="color" value="#6cff9f"></div>
-          </div>
-
-          <label style="margin-top:12px;">Intensità Glow</label>
-          <input id="glowPower" type="range" min="0" max="100" value="55" />
-
-          <div id="themeSwatches" style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- YOUTUBE HUB -->
-  <div class="panel" style="margin-top:16px;">
-    <div class="panelHead">
-      <div>YOUTUBE HUB</div>
-      <div style="opacity:.7;font-size:12px;">incolla link → ID + preset pronti</div>
-    </div>
-    <div class="panelBody">
-      <div class="grid">
-        <div>
-          <label>Incolla link YouTube (video / shorts / youtu.be)</label>
-          <input id="ytPaste" placeholder="https://www.youtube.com/watch?v=... oppure https://youtu.be/... oppure shorts/..." />
-
-          <div class="rowBtns" style="margin-top:10px;">
-            <button type="button" onclick="pasteToAuto()">→ Metti in Autoplay</button>
-            <button type="button" onclick="pasteToButtons()">→ Metti in Tasti</button>
-            <button type="button" onclick="copyCurrentIDs()">Copia IDs</button>
-          </div>
-
-          <label style="margin-top:14px;">Preset video già pronti</label>
-          <select id="ytPreset">
-            <option value="">— scegli preset —</option>
-            <option value="pa4mTtiy4Lw">Default Music (pa4mTtiy4Lw)</option>
-            <option value="5qap5aO4i9A">Lofi Focus (classico)</option>
-            <option value="DWcJFNfaw9c">Synthwave Radio</option>
-            <option value="jfKfPfyJRdk">Chill beats (alt)</option>
-            <option value="hHW1oY26kxQ">Space Ambient</option>
-          </select>
-
-          <div class="rowBtns" style="margin-top:10px;">
-            <button type="button" onclick="applyYTPresetToAuto()">Preset → Autoplay</button>
-            <button type="button" onclick="applyYTPresetToButtons()">Preset → Tasti</button>
-            <button type="button" onclick="copyEmbedCode()">Copia Embed</button>
-            <button type="button" onclick="openYouTube()">Apri su YouTube</button>
-          </div>
-
-          <div class="miniHint" style="margin-top:10px;">
-            Tip: se incolli un link, lui estrae l’ID automaticamente e aggiorna la miniatura.
-          </div>
-        </div>
-
-        <div>
-          <label>Miniatura (preview)</label>
-          <div class="miniHint">Usa <code>img.youtube.com</code> (nessuna API richiesta)</div>
-          <div id="ytThumbContainer"></div>
-          <div id="ytThumbNote" class="miniHint" style="margin-top:10px;opacity:.85;">Nessun ID selezionato.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- HISTORY -->
-  <div class="panel" style="margin-top:16px;">
-    <div class="panelHead">
-      <div>HISTORY</div>
-      <div style="opacity:.7;font-size:12px;">ripristina card recenti</div>
-    </div>
-    <div class="panelBody">
-      <div class="rowBtns" style="margin-top:0;">
-        <button type="button" onclick="saveToHistory()">Salva questa Card in History</button>
-        <button type="button" class="danger" onclick="clearHistory()">Svuota History</button>
-      </div>
-      <div id="historyList" class="miniHint" style="margin-top:12px;"></div>
-    </div>
-  </div>
-
-  <!-- UPDATE SYSTEM -->
-  <div class="panel" style="margin-top:16px;">
-    <div class="panelHead">
-      <div>UPDATE SYSTEM</div>
-      <div style="opacity:.7;font-size:12px;">manifest + migrazione automatica</div>
-    </div>
-    <div class="panelBody">
-      <label>URL Manifest (JSON)</label>
-      <input id="updateManifestUrl" placeholder="https://tuosito.it/tgifmoon/manifest.json" />
-
-      <div class="rowBtns" style="margin-top:10px;">
-        <button type="button" onclick="checkForUpdates()">Controlla aggiornamenti</button>
-        <button type="button" onclick="openLatestVersion()" id="btnOpenLatest" disabled>Apri ultima versione</button>
-        <button type="button" onclick="exportBackup()">Backup JSON</button>
-        <button type="button" onclick="importBackup()">Importa Backup</button>
-      </div>
-
-      <div class="miniHint" style="margin-top:10px;">
-        <div id="updateStatus">Stato: pronto.</div>
-        <div id="updateInfo" style="margin-top:6px;opacity:.9;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="miniHint" style="margin-top:12px;">
-    <span class="pill">✅ Preview reale</span>
-    <span class="pill">✅ DataURL immagini</span>
-    <span class="pill">✅ Export HTML</span>
-    <span class="pill">✅ Theme Lab</span>
-    <span class="pill">✅ YouTube Hub</span>
-    <span class="pill">✅ Auto-genera</span>
-    <span class="pill">✅ History</span>
-    <span class="pill">✅ Update + Migrazione</span>
-  </div>
-
-  <label style="margin-top:16px;">Import rapido (incolla HTML di una card e premi Importa)</label>
-  <textarea id="importBox" rows="3" placeholder="Incolla qui l'HTML della card generata..."></textarea>
-  <div class="rowBtns" style="margin-top:10px;">
-    <button onclick="importaDaHTML()">Importa</button>
-  </div>
-
-  <div class="previewWrap">
-    <div class="panel">
-      <div class="panelHead">
-        <div>PREVIEW LIVE</div>
-        <div style="opacity:.7;font-size:12px;">renderizzato</div>
-      </div>
-      <div class="panelBody">
-        <div id="previewHost"></div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panelHead">
-        <div>CODICE GENERATO</div>
-        <div style="opacity:.7;font-size:12px;">copiabile</div>
-      </div>
-      <div class="panelBody">
-        <pre id="codeBox"></pre>
-      </div>
-    </div>
+  <div class="box" style="margin-top:18px;">
+    <h2>📦 Codice HTML da inserire nella pagina GIF/Card</h2>
+    <pre id="codeBox"></pre>
   </div>
 
 </div>
-
-<style>
-@keyframes ytPulse{
-
-  0%{
-    box-shadow:
-      0 0 20px rgba(255,0,0,.30),
-      0 0 45px rgba(255,0,0,.12);
-  }
-
-  50%{
-    box-shadow:
-      0 0 35px rgba(255,0,0,.55),
-      0 0 85px rgba(255,0,0,.28);
-  }
-
-  100%{
-    box-shadow:
-      0 0 20px rgba(255,0,0,.30),
-      0 0 45px rgba(255,0,0,.12);
-  }
-
-}
-</style>
 
 <script>
-/* =========================
-   Utils
-========================= */
-function escapeHTML(txt){
-  return (txt ?? "")
+function esc(str){
+  return String(str || "")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#39;");
-}
-function nl2brSafe(txt){
-  return escapeHTML(txt).replace(/\n/g,"<br>");
-}
-function readFileAsDataURL(file){
-  return new Promise((resolve,reject)=>{
-    const r = new FileReader();
-    r.onload = ()=> resolve(String(r.result || ""));
-    r.onerror = ()=> reject(new Error("Errore lettura file"));
-    r.readAsDataURL(file);
-  });
+    .replace(/"/g,"&quot;");
 }
 
-/* download robusto + revoke */
-function downloadText(filename, text){
-  const blob = new Blob([text], {type:"text/html;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url), 1200);
+function isVideo(url){
+  return /\.(mp4|webm|mov)(\?|#|$)/i.test(url);
 }
 
-function debounce(fn, wait=180){
-  let t=null;
-  return (...args)=>{
-    clearTimeout(t);
-    t=setTimeout(()=>fn(...args), wait);
-  };
-}
-function safeURL(url){
-  const u = String(url || "").trim();
-
-  if(!u) return "";
-
-  // Permetti solo http e https
-  if(/^https?:\/\//i.test(u)){
-    return u;
+function getPreviewHTML(url, type){
+  if(!url){
+    return '<div style="color:#94a3b8;">Nessuna preview inserita</div>';
   }
 
-  return "";
-}
-/* =========================
-   Clipboard FIX (HTTPS + fallback)
-   - navigator.clipboard può essere undefined in HTTP / contesti non sicuri
-========================= */
-async function safeCopyText(text){
-  const txt = String(text || "");
-  try{
-    if(navigator.clipboard && window.isSecureContext){
-      await navigator.clipboard.writeText(txt);
-      return true;
-    }
-  }catch(e){ /* fallback sotto */ }
+  const finalType = type === "auto"
+    ? (isVideo(url) ? "video" : "image")
+    : type;
 
-  try{
-    const ta = document.createElement("textarea");
-    ta.value = txt;
-    ta.setAttribute("readonly","");
-    ta.style.position = "fixed";
-    ta.style.top = "-9999px";
-    ta.style.left = "-9999px";
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    ta.setSelectionRange(0, ta.value.length);
-    const ok = document.execCommand("copy");
-    ta.remove();
-    return !!ok;
-  }catch(e){
-    return false;
-  }
-}
-
-/* =========================
-   STORAGE V2 + MIGRAZIONE AUTOMATICA
-========================= */
-const APP_VERSION = "2.0.0";
-const STATE_KEY_V2 = "TEMERIA_FORGE_STATE";
-
-const LEGACY_FIELDS = "TGIF_FIELDS";
-const LEGACY_THEME  = "TGIF_THEME";
-const LEGACY_HIST   = "TGIF_HISTORY";
-const LEGACY_MANIFEST_URL = "TGIF_MANIFEST_URL";
-
-function safeJSONParse(raw, fallback){
-  try{ return JSON.parse(raw); }catch(e){ return fallback; }
-}
-function getNowStamp(){
-  const d = new Date();
-  return d.toLocaleString();
-}
-function getDefaultStateV2(){
-  return {
-    schema: 2,
-    appVersion: APP_VERSION,
-    updatedAt: getNowStamp(),
-    manifestUrl: "",
-    theme: null,
-    fields: {},
-    history: []
-  };
-}
-function loadStateV2(){
-  const raw = localStorage.getItem(STATE_KEY_V2);
-  if(!raw) return null;
-  const st = safeJSONParse(raw, null);
-  if(!st || typeof st !== "object" || st.schema !== 2) return null;
-  return st;
-}
-function saveStateV2(state){
-  try{
-    state.updatedAt = getNowStamp();
-    state.appVersion = APP_VERSION;
-    state.schema = 2;
-    localStorage.setItem(STATE_KEY_V2, JSON.stringify(state));
-  }catch(e){}
-}
-function mergeStateV2(partial){
-  const base = loadStateV2() || getDefaultStateV2();
-  const merged = {...base, ...partial, schema:2, appVersion:APP_VERSION};
-  saveStateV2(merged);
-  return merged;
-}
-function migrateLegacyToV2(){
-  const already = loadStateV2();
-  if(already) return already;
-
-  const fields = safeJSONParse(localStorage.getItem(LEGACY_FIELDS) || "{}", {});
-  const theme  = safeJSONParse(localStorage.getItem(LEGACY_THEME)  || "null", null);
-  const hist   = safeJSONParse(localStorage.getItem(LEGACY_HIST)   || "[]", []);
-  const mUrl   = localStorage.getItem(LEGACY_MANIFEST_URL) || "";
-
-  const st = getDefaultStateV2();
-  st.fields = (fields && typeof fields==="object") ? fields : {};
-  st.theme = (theme && typeof theme==="object") ? theme : null;
-  st.history = Array.isArray(hist) ? hist : [];
-  st.manifestUrl = mUrl || "";
-
-  saveStateV2(st);
-  return st;
-}
-
-/* =========================
-   THEME LAB – Palette Engine
-========================= */
-const THEME_PRESETS = {
-  cyber_aurora: { bg:"#070a12", txt:"#eafcff", accent:"#00f6ff", accent2:"#7fffd9", accent3:"#b06cff", accent4:"#6cff9f", glowPower:55 },
-  gold_neon:    { bg:"#070a12", txt:"#fff6e6", accent:"#2fffd5", accent2:"#ffd36a", accent3:"#ff9df0", accent4:"#9bff6a", glowPower:52 },
-  crimson_nebula:{ bg:"#06040b", txt:"#f2f7ff", accent:"#00f6ff", accent2:"#ff4fd8", accent3:"#8a5cff", accent4:"#6cff9f", glowPower:58 },
-  ice_quantum:  { bg:"#050914", txt:"#e9fbff", accent:"#8cf7ff", accent2:"#a7b7ff", accent3:"#66ffd0", accent4:"#b9ff6a", glowPower:45 },
-  obsidian_lux: { bg:"#06070a", txt:"#f3f7ff", accent:"#67f3ff", accent2:"#b9a6ff", accent3:"#ffd36a", accent4:"#6cff9f", glowPower:40 }
-};
-
-function clamp01(x){ return Math.max(0, Math.min(1, x)); }
-function hexToRgb(hex){
-  const h = (hex || "").replace("#","").trim();
-  if(h.length===3){
-    const r=parseInt(h[0]+h[0],16), g=parseInt(h[1]+h[1],16), b=parseInt(h[2]+h[2],16);
-    return {r,g,b};
-  }
-  if(h.length!==6) return {r:0,g:0,b:0};
-  return { r: parseInt(h.slice(0,2),16), g: parseInt(h.slice(2,4),16), b: parseInt(h.slice(4,6),16) };
-}
-function hexToRgba(hex, a){
-  const c = hexToRgb(hex);
-  return `rgba(${c.r},${c.g},${c.b},${a})`;
-}
-function rgbToHex({r,g,b}){
-  const to = (n)=> (Math.max(0,Math.min(255,Math.round(n))).toString(16).padStart(2,"0"));
-  return "#"+to(r)+to(g)+to(b);
-}
-function mix(hexA, hexB, t){
-  t = clamp01(t);
-  const a=hexToRgb(hexA), b=hexToRgb(hexB);
-  return rgbToHex({ r: a.r + (b.r-a.r)*t, g: a.g + (b.g-a.g)*t, b: a.b + (b.b-a.b)*t });
-}
-function lighten(hex, t){ return mix(hex, "#ffffff", t); }
-function darken(hex, t){ return mix(hex, "#000000", t); }
-
-function getThemeFromUI(){
-  const preset = document.getElementById("themePreset")?.value || "cyber_aurora";
-  if(preset !== "custom" && THEME_PRESETS[preset]){
-    const p = THEME_PRESETS[preset];
-    return {...p, preset};
-  }
-  return {
-    preset:"custom",
-    bg: document.getElementById("c_bg").value,
-    txt: document.getElementById("c_txt").value,
-    accent: document.getElementById("c_accent").value,
-    accent2: document.getElementById("c_accent2").value,
-    accent3: document.getElementById("c_accent3").value,
-    accent4: document.getElementById("c_accent4").value,
-    glowPower: Number(document.getElementById("glowPower").value || 55)
-  };
-}
-function renderSwatches(theme){
-  const host = document.getElementById("themeSwatches");
-  if(!host) return;
-  const colors = [theme.bg, theme.txt, theme.accent, theme.accent2, theme.accent3, theme.accent4];
-  host.innerHTML = colors.map(c=> `<div class="sw" title="${c}" style="background:${c}"></div>`).join("");
-}
-function applyThemeVars(theme){
-
-  /*
-  const gp = clamp01((theme.glowPower ?? 55)/100);
-
-  document.documentElement.style.setProperty("--bg", theme.bg);
-  document.documentElement.style.setProperty("--txt", theme.txt);
-  document.documentElement.style.setProperty("--muted", `rgba(234,252,255,0.78)`);
-
-  document.documentElement.style.setProperty("--accent", theme.accent);
-  document.documentElement.style.setProperty("--accent2", theme.accent2);
-  document.documentElement.style.setProperty("--accent3", theme.accent3);
-  document.documentElement.style.setProperty("--accent4", theme.accent4);
-
-  document.documentElement.style.setProperty("--border", hexToRgba(theme.accent, "0.22"));
-  document.documentElement.style.setProperty("--border2", hexToRgba(theme.accent3, "0.16"));
-  document.documentElement.style.setProperty("--glow", hexToRgba(theme.accent, (0.10 + gp*0.22).toFixed(3)));
-  document.documentElement.style.setProperty("--glow2", hexToRgba(theme.accent3, (0.06 + gp*0.18).toFixed(3)));
-  */
-
-  renderSwatches(theme);
-}
-function setCustomPickersFromTheme(theme){
-  document.getElementById("c_bg").value = theme.bg;
-  document.getElementById("c_txt").value = theme.txt;
-  document.getElementById("c_accent").value = theme.accent;
-  document.getElementById("c_accent2").value = theme.accent2;
-  document.getElementById("c_accent3").value = theme.accent3;
-  document.getElementById("c_accent4").value = theme.accent4;
-  document.getElementById("glowPower").value = String(theme.glowPower ?? 55);
-}
-
-function saveThemeToLocal(){
-  try{
-    const t = getThemeFromUI();
-    localStorage.setItem(LEGACY_THEME, JSON.stringify(t)); // compat
-    mergeStateV2({ theme: t });
-  }catch(e){}
-}
-function loadThemeFromLocal(){
-  const v2 = loadStateV2();
-  if(v2?.theme) return v2.theme;
-  try{
-    const raw = localStorage.getItem(LEGACY_THEME);
-    if(!raw) return null;
-    return safeJSONParse(raw, null);
-  }catch(e){ return null; }
-}
-
-function onPresetChange(){
-  const preset = document.getElementById("themePreset").value;
-  if(preset !== "custom" && THEME_PRESETS[preset]){
-    const t = THEME_PRESETS[preset];
-    setCustomPickersFromTheme(t);
-    applyThemeVars({...t, preset});
-    saveThemeToLocal();
-    autoG();
-  } else {
-    onCustomChange();
-  }
-}
-function onCustomChange(){
-  document.getElementById("themePreset").value = "custom";
-  const t = getThemeFromUI();
-  applyThemeVars(t);
-  saveThemeToLocal();
-  autoG();
-}
-function applyThemeToUI(){
-  const t = getThemeFromUI();
-  applyThemeVars(t);
-  saveThemeToLocal();
-  autoG();
-}
-function randomTheme(){
-  const bg = darken(mix("#0b1220", "#05060a", Math.random()), 0.15 + Math.random()*0.15);
-  const a1 = rgbToHex({ r: 60 + Math.random()*195, g: 60 + Math.random()*195, b: 60 + Math.random()*195 });
-  const a2 = mix(a1, rgbToHex({r:255*Math.random(), g:255*Math.random(), b:255*Math.random()}), 0.45);
-  const a3 = mix(a2, "#b06cff", 0.45);
-  const a4 = mix(a1, "#6cff9f", 0.40);
-  const txt = lighten("#bfefff", 0.20);
-
-  const t = { preset:"custom", bg, txt, accent:a1, accent2:a2, accent3:a3, accent4:a4, glowPower: 45 + Math.round(Math.random()*40) };
-  setCustomPickersFromTheme(t);
-  applyThemeVars(t);
-  saveThemeToLocal();
-  autoG();
-}
-async function copyThemeJSON(){
-  const t = getThemeFromUI();
-  const ok = await safeCopyText(JSON.stringify(t, null, 2));
-  alert(ok ? "Palette copiata (JSON)!" : "Copia non riuscita. Seleziona e copia manualmente.");
-}
-
-/* =========================
-   Autosave campi + History
-========================= */
-function saveFieldsToLocal(){
-  try{
-const ids = [
-  "titolo",
-  "frase",
-  "frase2",
-  "emoticons",
-  "textStyle",
-  "cardStyle",
-  "outputMode",
-  "cardSize",
-  "firma",
-
-  "gifurl",
-  "imglink",
-  "minigif",
-  "minilink",
-
-  "ytid_auto",
-  "ytid_btn",
-  "mp3url",
-  "audioMode",
-  "videourl",
-
-  "ytPaste",
-  "ytPreset"
-];
-    const data = {};
-    ids.forEach(id=>{
-      const el=document.getElementById(id);
-      if(!el) return;
-      data[id] = el.value;
-    });
-   try{
-  localStorage.setItem(LEGACY_FIELDS, JSON.stringify(data));
-  mergeStateV2({ fields: data });
-}catch(err){
-  console.warn("Storage pieno:", err);
-
-  alert(
-    "Storage browser quasi pieno.\n" +
-    "Riduci immagini DataURL oppure svuota History."
-  );
-}
-  }catch(e){}
-}
-function loadFieldsFromLocal(){
-  const v2 = loadStateV2();
-  const data = (v2?.fields && typeof v2.fields==="object") ? v2.fields : safeJSONParse(localStorage.getItem(LEGACY_FIELDS) || "{}", {});
-  if(!data || typeof data!=="object") return;
-  Object.keys(data).forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    el.value = data[id];
-  });
-}
-
-function loadHistory(){
-  const v2 = loadStateV2();
-  if(v2?.history && Array.isArray(v2.history)) return v2.history;
-  return safeJSONParse(localStorage.getItem(LEGACY_HIST) || "[]", []);
-}
-function saveHistory(arr){
-  try{
-    localStorage.setItem(LEGACY_HIST, JSON.stringify(arr)); // compat
-    mergeStateV2({ history: arr });
-  }catch(e){}
-}
-function renderHistory(){
-  const list = document.getElementById("historyList");
-  if(!list) return;
-  const hist = loadHistory();
-  document.getElementById("kpiHist").textContent = "History: " + hist.length;
-
-  if(hist.length===0){
-    list.innerHTML = "Nessuna card in history (usa “Salva questa Card in History”).";
-    return;
-  }
-  list.innerHTML = hist.map((h,i)=>`
-    <div style="margin-bottom:10px;padding:10px;border-radius:14px;border:1px solid rgba(0,246,255,0.14);background:rgba(255,255,255,0.02);">
-      <div style="font-weight:bold;opacity:.95">${escapeHTML(h.title || ("Card "+(i+1)))}</div>
-      <div style="font-size:12px;opacity:.75;margin-top:4px">${escapeHTML(h.when || "")}</div>
-      <div class="rowBtns" style="margin-top:10px;">
-        <button type="button" onclick="restoreHistory(${i})">Ripristina</button>
-        <button type="button" onclick="copyHistory(${i})">Copia HTML</button>
-        <button type="button" class="danger" onclick="deleteHistory(${i})">Elimina</button>
-      </div>
-    </div>
-  `).join("");
-}
-function saveToHistory(){
-  const code = document.getElementById("codeBox").textContent || "";
-  if(!code.trim()){ alert("Nessuna card da salvare. Genera prima."); return; }
-  const hist = loadHistory();
-  const now = new Date();
-  const stamp = now.toLocaleString();
-  hist.unshift({
-   title: (document.getElementById("titolo").value || "Card senza titolo").slice(0,60),
-    when: stamp,
-    fields: safeJSONParse(localStorage.getItem(LEGACY_FIELDS) || "{}", {}),
-    theme: getThemeFromUI(),
-    code
-  });
-  hist.splice(20);
-  // elimina card troppo pesanti
-const filtered = hist.filter(h => {
-  try{
-    return JSON.stringify(h).length < 1500000;
-  }catch(e){
-    return false;
-  }
-});
-
-saveHistory(filtered);
-  renderHistory();
-  alert("Salvata in History!");
-}
-function restoreHistory(i){
-  const hist = loadHistory();
-  const h = hist[i];
-  if(!h) return;
-
-  if(h.theme){
-    setCustomPickersFromTheme(h.theme);
-    document.getElementById("themePreset").value = h.theme.preset && h.theme.preset !== "custom" ? h.theme.preset : "custom";
-    applyThemeVars(h.theme);
-    saveThemeToLocal();
-  }
-  if(h.fields){
-    Object.keys(h.fields).forEach(id=>{
-      const el=document.getElementById(id);
-      if(el) el.value = h.fields[id];
-    });
-    saveFieldsToLocal();
-  }
-  autoG();
-}
-async function copyHistory(i){
-  const hist = loadHistory();
-  const h = hist[i];
-  if(!h) return;
-  const ok = await safeCopyText(h.code || "");
-  alert(ok ? "HTML copiato!" : "Copia non riuscita. Seleziona e copia manualmente.");
-}
-function deleteHistory(i){
-  const hist = loadHistory();
-  hist.splice(i,1);
-  saveHistory(hist);
-  renderHistory();
-}
-function clearHistory(){
-  if(!confirm("Vuoi svuotare tutta la History?")) return;
-  saveHistory([]);
-  renderHistory();
-}
-
-/* =========================
-   YouTube Hub
-========================= */
-/* =========================
-   YouTube Hub
-========================= */
-
-function extractYouTubeId(input){
-
-  const s = String(input || "").trim();
-
-  if(!s) return "";
-
-  // Se è già un ID puro
-  if(/^[a-zA-Z0-9_-]{11}$/.test(s)){
-    return s;
+  if(finalType === "video"){
+    return `<video src="${esc(url)}" autoplay loop muted playsinline preload="metadata"></video>`;
   }
 
-  try{
-
-    const url = new URL(s);
-
-    // youtube.com/watch?v=
-    const v = url.searchParams.get("v");
-    if(v) return v;
-
-    // youtu.be/ID
-    if(url.hostname.includes("youtu.be")){
-      return url.pathname.replace(/\//g,"").trim();
-    }
-
-    // shorts / embed / live
-    const parts = url.pathname.split("/").filter(Boolean);
-
-    const idxShorts = parts.indexOf("shorts");
-    if(idxShorts !== -1 && parts[idxShorts+1]){
-      return parts[idxShorts+1];
-    }
-
-    const idxEmbed = parts.indexOf("embed");
-    if(idxEmbed !== -1 && parts[idxEmbed+1]){
-      return parts[idxEmbed+1];
-    }
-
-    const idxLive = parts.indexOf("live");
-    if(idxLive !== -1 && parts[idxLive+1]){
-      return parts[idxLive+1];
-    }
-
-  }catch(e){
-
-    // fallback regex brutale
-    const m = s.match(/([a-zA-Z0-9_-]{11})/);
-
-    if(m) return m[1];
-  }
-
-  return "";
+  return `<img src="${esc(url)}" alt="">`;
 }
 
-function setThumb(id){
+function buildTabHTML(){
+  const cardUrl = document.getElementById("cardUrl").value.trim();
+  const title = document.getElementById("title").value.trim() || "Temeria Card";
+  const category = document.getElementById("category").value;
+  const desc = document.getElementById("desc").value.trim();
+  const previewUrl = document.getElementById("previewUrl").value.trim();
+  const previewType = document.getElementById("previewType").value;
 
-  const host = document.getElementById("ytThumbContainer");
-  const note = document.getElementById("ytThumbNote");
+  const wa = "https://wa.me/?text=" + encodeURIComponent(cardUrl);
 
-  if(!host || !note) return;
+  return `
+<div class="gif-card-tab" data-category="${esc(category)}" style="
+  background:linear-gradient(135deg,#0b1020,#151a33);
+  border:1px solid rgba(0,246,255,.22);
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 0 35px rgba(0,246,255,.08),0 0 55px rgba(176,108,255,.10);
+  max-width:420px;
+">
 
-  if(!id){
-    host.innerHTML = "";
-    note.textContent = "Nessun ID selezionato.";
-    return;
-  }
-
-  const thumb = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
-  const yt = `https://www.youtube.com/watch?v=${id}`;
-
-  host.innerHTML = `
-<div
-  style="
-    position:relative;
-    border-radius:18px;
+  <div class="gif-card-media" style="
+    width:100%;
+    aspect-ratio:16/9;
+    background:#020617;
     overflow:hidden;
-    border:1px solid rgba(0,246,255,0.18);
-  "
->
-  <img
-    src="${thumb}"
-    style="width:100%;display:block;"
-  >
-
-  <a
-    href="${yt}"
-    target="_blank"
-    style="
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-decoration:none;
-      background:rgba(0,0,0,0.18);
-    "
-  >
-    <div
-      style="
-        padding:16px 28px;
-        border-radius:999px;
-        background:red;
-        color:white;
-        font-weight:800;
-        font-size:22px;
-      "
-    >
-      ▶ Guarda su YouTube
-    </div>
-  </a>
-</div>
-`;
-
-  note.textContent = "ID: " + id;
-}
-function pasteToAuto(){
-  let raw = document.getElementById("ytPaste").value.trim();
-
-  if(!raw){
-    raw = document.getElementById("ytPreset").value.trim();
-  }
-
-  if(!raw){
-    raw = document.getElementById("ytid_auto").value.trim();
-  }
-
-  const id = extractYouTubeId(raw);
-
-  if(!id){
-    alert("Nessun ID trovato. Incolla un link YouTube, scegli un preset oppure lascia l’ID già presente.");
-    return;
-  }
-
-  document.getElementById("ytid_auto").value = id;
-  setThumb(id);
-  genera();
-}
-
-function pasteToButtons(){
-  let raw = document.getElementById("ytPaste").value.trim();
-
-  if(!raw){
-    raw = document.getElementById("ytPreset").value.trim();
-  }
-
-  if(!raw){
-    raw = document.getElementById("ytid_btn").value.trim();
-  }
-
-  if(!raw){
-    raw = document.getElementById("ytid_auto").value.trim();
-  }
-
-  const id = extractYouTubeId(raw);
-
-  if(!id){
-    alert("Nessun ID trovato. Incolla un link YouTube, scegli un preset oppure usa l’ID autoplay.");
-    return;
-  }
-
-  document.getElementById("ytid_btn").value = id;
-  setThumb(id);
-  genera();
-}
-function applyYTPresetToAuto(){
-  const id = document.getElementById("ytPreset").value;
-  if(!id){ alert("Seleziona un preset."); return; }
-  document.getElementById("ytid_auto").value = id;
-  setThumb(id);
-  autoG();
-}
-function applyYTPresetToButtons(){
-  const id = document.getElementById("ytPreset").value;
-  if(!id){ alert("Seleziona un preset."); return; }
-  document.getElementById("ytid_btn").value = id;
-  setThumb(id);
-  autoG();
-}
-async function copyCurrentIDs(){
-  const a = (document.getElementById("ytid_auto").value||"").trim();
-  const b = (document.getElementById("ytid_btn").value||"").trim();
-  const ok = await safeCopyText(`ytid_auto: ${a}\nyt_id_btn: ${b}`);
-  alert(ok ? "IDs copiati!" : "Copia non riuscita. Seleziona e copia manualmente.");
-}
-async function copyEmbedCode(){
-  const id = (document.getElementById("ytid_auto").value||"").trim() || (document.getElementById("ytid_btn").value||"").trim();
-  if(!id){ alert("Nessun ID disponibile."); return; }
-  const code = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${id}" title="YouTube video" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-  const ok = await safeCopyText(code);
-  alert(ok ? "Embed copiato!" : "Copia non riuscita. Seleziona e copia manualmente.");
-}
-function openYouTube(){
-  const id = (document.getElementById("ytid_auto").value||"").trim() || (document.getElementById("ytid_btn").value||"").trim();
-  if(!id){ alert("Nessun ID disponibile."); return; }
-  window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(id)}`, "_blank", "noopener");
-}
-
-/* =========================
-   Stato immagini (DataURL)
-========================= */
-let gifDataURL = "";
-let miniDataURL = "";
-
-document.getElementById("giffile").addEventListener("change", async (e)=>{
-  const f = e.target.files && e.target.files[0];
-  if(!f) return;
-
-    if(f.size > 8 * 1024 * 1024){
-    alert("Immagine troppo grande. Usa un file sotto gli 8 MB.");
-    e.target.value = "";
-    return;
-  }
-  try{
-    gifDataURL = await readFileAsDataURL(f);
-    document.getElementById("gifurl").value = "";
-    autoG();
-  }catch(err){
-    alert("Impossibile caricare immagine: " + err.message);
-  }
-});
-
-document.getElementById("minifile").addEventListener("change", async (e)=>{
-  const f = e.target.files && e.target.files[0];
-  if(!f) return;
-
-    if(f.size > 3 * 1024 * 1024){
-    alert("Mini-logo troppo grande. Usa un file sotto i 3 MB.");
-    e.target.value = "";
-    return;
-  }
-  try{
-    miniDataURL = await readFileAsDataURL(f);
-    document.getElementById("minigif").value = "";
-    autoG();
-  }catch(err){
-    alert("Impossibile caricare mini-logo: " + err.message);
-  }
-});
-
-/* =========================
-   Card Engine (core)
-========================= */
-function buildCardHTML(){
-  const titolo = escapeHTML(document.getElementById("titolo").value);
-  const frase  = nl2brSafe(document.getElementById("frase").value);
-  const frase2Raw = document.getElementById("frase2").value || "";
-  const frase2 = frase2Raw.trim() ? nl2brSafe(frase2Raw) : "";
-  const emoj   = escapeHTML(document.getElementById("emoticons").value || "").trim();
-
-  const gifURL = (document.getElementById("gifurl").value || "").trim();
-  const gif    = gifDataURL || gifURL;
-
-  const miniURL = (document.getElementById("minigif").value || "").trim();
-  const mini    = miniDataURL || miniURL;
-
-const imglink = safeURL(document.getElementById("imglink").value);
-  const minilink = safeURL(document.getElementById("minilink").value);
-
-  const yta = (document.getElementById("ytid_auto").value || "").trim();
- const ytb = (document.getElementById("ytid_btn").value || document.getElementById("ytid_auto").value || "").trim();
-  const mp3 = safeURL(document.getElementById("mp3url").value);
-
-  const mode  = document.getElementById("audioMode").value;
-const video = safeURL(document.getElementById("videourl").value);
-  const firma = escapeHTML(document.getElementById("firma").value);
-
-  const textStyle = document.getElementById("textStyle").value;
-  const cardStyle = document.getElementById("cardStyle").value;
-const outputMode = document.getElementById("outputMode").value;
-const cardSize = document.getElementById("cardSize").value;
-  const theme = getThemeFromUI();
-  const gp = clamp01((theme.glowPower ?? 55)/100);
-
-  const borderRGBA = hexToRgba(theme.accent, "0.25");
-  const borderSoft = hexToRgba(theme.accent, (0.14 + gp*0.12).toFixed(3));
-  const glowRGBA   = hexToRgba(theme.accent, (0.12 + gp*0.18).toFixed(3));
-  const glow2RGBA  = hexToRgba(theme.accent3, (0.06 + gp*0.16).toFixed(3));
-  const btnBg      = hexToRgba(theme.accent, "0.20");
-  const btnBorder  = hexToRgba(theme.accent, "0.70");
-
-  const styleMap = {
-    normal:"",
-    dream:"font-family:Georgia,serif;letter-spacing:.5px;",
-    neon:`text-shadow:0 0 14px ${glowRGBA};`
-  };
-
-  const baseA = darken(mix(theme.bg, theme.accent, 0.10), 0.10);
-  const baseB = darken(mix(theme.bg, theme.accent3, 0.12), 0.08);
-  const baseC = darken(mix(theme.bg, theme.accent2, 0.08), 0.12);
-
-  const bgClassic = `linear-gradient(180deg,${baseA},${baseB},${baseC})`;
-  const bgGlass   = `linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015)), ${bgClassic}`;
-  const bgNebula  = `radial-gradient(900px 520px at 15% 10%, ${hexToRgba(theme.accent2, (0.18+gp*0.10).toFixed(3))}, transparent 60%),
-                     radial-gradient(900px 520px at 85% 20%, ${hexToRgba(theme.accent3, (0.16+gp*0.12).toFixed(3))}, transparent 60%),
-                     ${bgClassic}`;
-  const bgHolo    = `linear-gradient(135deg, ${hexToRgba(theme.accent, (0.10+gp*0.10).toFixed(3))}, transparent 40%),
-                     linear-gradient(315deg, ${hexToRgba(theme.accent3, (0.10+gp*0.10).toFixed(3))}, transparent 40%),
-                     ${bgGlass}`;
-  const bgMinimal = `linear-gradient(180deg, ${darken(theme.bg,0.08)}, ${darken(theme.bg,0.18)})`;
-
-  const bgSocialWhite = `
-linear-gradient(180deg,#ffffff,#f8f8f8)
-`;
-
-const bgMap = {
-  classic:bgClassic,
-  glass:bgGlass,
-  nebula:bgNebula,
-  holo:bgHolo,
-  minimal:bgMinimal,
-  social_white:bgSocialWhite
-};
-if(cardStyle === "social_white"){
-
-  theme.txt = "#111111";
-
-  theme.accent = "#111111";
-  theme.accent2 = "#444444";
-  theme.accent3 = "#777777";
-
-}
-  const cardBG = bgMap[cardStyle] || bgHolo;
-
-  let mediaHTML = "";
-
-if(mode==="yt_auto" && yta){
-
-const playerId =
-"ytAuto_" + Math.random().toString(36).slice(2);
-
-mediaHTML += `
-
-<!-- PLAYER AUTOPLAY INVISIBILE -->
-
-<div style="
-position:fixed;
-left:-9999px;
-top:-9999px;
-width:1px;
-height:1px;
-overflow:hidden;
-opacity:0.01;
-pointer-events:none;
-z-index:-1;
-">
-
-<iframe
-id="${playerId}"
-width="1"
-height="1"
-allow="
-autoplay;
-encrypted-media;
-fullscreen
-"
-allowfullscreen
-frameborder="0"
-src="
-https://www.youtube.com/embed/${yta}?autoplay=1&mute=0&loop=1&playlist=${yta}&playsinline=1
-">
-</iframe>
-
-</div>
-
-`;
-
-}
-
-if(mode==="yt_buttons" && ytb){
-
-const playerId =
-"ytBtn_" + Math.random().toString(36).slice(2);
-
-mediaHTML += `
-
-<div style="
-margin-top:15px;
-display:flex;
-gap:10px;
-justify-content:center;
-flex-wrap:wrap;
-">
-
-<button
-onclick="
-const p=document.getElementById('${playerId}');
-
-p.src='https://www.youtube.com/embed/${ytb}?autoplay=1&mute=0&playsinline=1';
-
-p.style.display='block';
-"
-style="
-padding:12px 18px;
-border:none;
-border-radius:999px;
-background:red;
-color:white;
-font-weight:bold;
-cursor:pointer;
-"
->
-▶ PLAY
-</button>
-
-<button
-onclick="
-const p=document.getElementById('${playerId}');
-
-p.src='';
-
-p.style.display='none';
-"
-style="
-padding:12px 18px;
-border:none;
-border-radius:999px;
-background:#222;
-color:white;
-font-weight:bold;
-cursor:pointer;
-"
->
-■ STOP
-</button>
-
-</div>
-
-<div style="
-position:fixed;
-left:-9999px;
-top:-9999px;
-width:1px;
-height:1px;
-overflow:hidden;
-opacity:0.01;
-pointer-events:none;
-z-index:-1;
-">
-<iframe
-id="${playerId}"
-width="1"
-height="1"
-style="
-display:none;
-border:none;
-border-radius:12px;
-box-shadow:0 0 20px rgba(0,0,0,.35);
-background:black;
-"
-allow="
-autoplay;
-encrypted-media;
-fullscreen
-"
-allowfullscreen
-frameborder="0">
-</iframe>
-
-</div>
-
-`;
-
-}
-
-  if(mode==="mp3" && mp3){
-    const audId =
-"aud_" + Math.random().toString(36).slice(2);
-    mediaHTML += `<div style="margin:18px 0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-<button style="padding:10px 16px;border-radius:999px;border:1px solid ${btnBorder};background:${btnBg};color:${theme.accent};font-weight:bold;cursor:pointer;box-shadow:0 0 18px ${glowRGBA};"
-onclick="document.getElementById('${audId}').play()">Ascolta</button>
-<button style="padding:10px 16px;border-radius:999px;border:1px solid ${btnBorder};background:${btnBg};color:${theme.accent};font-weight:bold;cursor:pointer;box-shadow:0 0 18px ${glowRGBA};"
-onclick="document.getElementById('${audId}').pause()">Stop</button></div>
-<audio id="${audId}" loop><source src="${mp3}" type="audio/mpeg"></audio>`;
-  }
-
-  if(video){
-    mediaHTML += `<video src="${video}" controls style="width:100%;border-radius:16px;margin-top:10px;border:1px solid ${borderSoft};box-shadow:0 0 18px ${glow2RGBA};"></video>`;
-  }
-
-  const missingGifNote = !gif
-? `
-<div style="margin-top:18px;text-align:center;">
-
-<img
-src="https://i.postimg.cc/x8FrS9TM/Nyang-Piumy-(1).gif"
-style="
-width:90px;
-height:90px;
-object-fit:cover;
-border-radius:50%;
-box-shadow:0 0 18px rgba(255,0,120,.35);
-border:3px solid rgba(255,255,255,.75);
-">
-
-</div>
-`
-: "";
-
-const imgStyle = cardStyle === "social_white"
-  ? `
-    width:100%;
-    display:block;
-    margin:auto;
-    box-sizing:border-box;
-    border-radius:14px;
-
-    border:1px solid rgba(0,0,0,0.10);
-
-    box-shadow:
-      0 6px 18px rgba(0,0,0,0.10);
-
-    object-fit:contain;
-  `
-  : `
-    width:100%;
-    display:block;
-    margin:auto;
-
-    border-radius:16px;
-
-    border:1px solid ${borderSoft};
-
-    box-shadow:
-      0 0 18px ${glowRGBA};
-
-    object-fit:contain;
-  `;
-
-const imageFrameStyle = cardStyle === "social_white"
-? `
-  margin-top:18px;
-  padding:14px;
-  border-radius:24px;
-  background:#ffffff;
-  border:1px solid rgba(0,0,0,0.08);
-  box-sizing:border-box;
-  overflow:hidden;
-  box-shadow:
-    0 4px 14px rgba(0,0,0,0.05),
-    inset 0 1px 0 rgba(255,255,255,.80);
-`
-: `
-  margin-top:18px;
-  padding:14px;
-  border-radius:24px;
-  box-sizing:border-box;
-  overflow:hidden;
-  background:
-    radial-gradient(circle at 20% 10%, ${hexToRgba(theme.accent, "0.22")}, transparent 45%),
-    radial-gradient(circle at 80% 90%, ${hexToRgba(theme.accent3, "0.20")}, transparent 50%),
-    linear-gradient(
-      135deg,
-      ${hexToRgba(theme.accent2, "0.10")},
-      ${hexToRgba(theme.bg, "0.35")}
-    );
-
-  border:1px solid ${borderSoft};
-
-  box-shadow:
-    0 0 22px ${glowRGBA},
-    0 0 55px ${glow2RGBA},
-    inset 0 1px 0 rgba(255,255,255,.12);
-
-`;
-
-const mainImgHTML = gif
-  ? (imglink
-      ? `<div style="${imageFrameStyle}">
-           <a href="${escapeHTML(imglink)}" target="_blank" rel="noopener">
-             <img src="${gif}" style="${imgStyle}cursor:pointer;margin-top:0;">
-           </a>
-         </div>`
-      : `<div style="${imageFrameStyle}">
-           <img src="${gif}" style="${imgStyle}margin-top:0;">
-         </div>`)
-  : missingGifNote;
-  const miniHTML = mini
-    ? (minilink
-        ? `<a href="${escapeHTML(minilink)}" target="_blank" rel="noopener">
-             <img src="${mini}" style="max-width:90px;margin-top:20px;border-radius:14px;border:1px solid ${borderSoft};box-shadow:0 0 18px ${glow2RGBA};cursor:pointer;">
-           </a>`
-        : `<img src="${mini}" style="max-width:90px;margin-top:20px;border-radius:14px;border:1px solid ${borderSoft};box-shadow:0 0 18px ${glow2RGBA};">`)
-    : "";
-
-  const extraSheen = cardStyle==="holo" ? `background-image: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 40%), linear-gradient(315deg, rgba(255,255,255,0.05), transparent 45%);` : "";
-let cardPadding = "32px";
-let titleSize = "30px";
-let phraseSize = "22px";
-let imageRadius = "16px";
-let maxWidth = "900px";
-let hideText = false;
-let cinematicFX = "";
-
-if(outputMode === "social_clean"){
-  cardPadding = "18px";
-  maxWidth = "760px";
-}
-
-if(outputMode === "image_focus"){
-  cardPadding = "12px";
-  titleSize = "22px";
-  phraseSize = "16px";
-  maxWidth = "980px";
-}
-
-if(outputMode === "music_focus"){
-  cinematicFX = `
-    box-shadow:
-      0 0 35px ${glowRGBA},
-      0 0 80px ${glow2RGBA};
-  `;
-}
-
-if(outputMode === "video_focus"){
-  cardPadding = "10px";
-  maxWidth = "1100px";
-}
-
-if(outputMode === "cinematic"){
-  cinematicFX = `
-    transform:scale(1.01);
-    box-shadow:
-      0 0 40px ${glowRGBA},
-      0 0 100px ${glow2RGBA};
-  `;
-}
-
-if(outputMode === "minimal"){
-  hideText = true;
-  cardPadding = "8px";
-}
-let cardWidth = "760px";
-let cardMinHeight = "auto";
-
-if(cardSize === "small"){
-  cardWidth = "420px";
-}
-
-if(cardSize === "medium"){
-  cardWidth = "760px";
-}
-
-if(cardSize === "large"){
-  cardWidth = "980px";
-}
-
-if(cardSize === "ultra"){
-  cardWidth = "1280px";
-}
-
-if(cardSize === "square"){
-  cardWidth = "700px";
-  cardMinHeight = "700px";
-}
-
-if(cardSize === "story"){
-  cardWidth = "420px";
-  cardMinHeight = "760px";
-}
-  const card = `
-<div style="
-text-align:center;
-
-width:100%;
-max-width:${cardWidth};
-
-box-sizing:border-box;
-overflow:hidden;
-min-height:${cardMinHeight};margin:auto;padding:${cardPadding};
-background:${cardBG};${extraSheen}
-border-radius:${cardStyle==="social_white" ? "18px" : "26px"};
-color:${theme.txt};
-border:${cardStyle==="social_white"
-  ? "1px solid rgba(0,0,0,0.10)"
-  : `1px solid ${borderRGBA}`};
-
-box-shadow:${cardStyle==="social_white"
-  ? "0 8px 24px rgba(0,0,0,0.08)"
-  : `0 0 22px ${glowRGBA}`};
-${cinematicFX}">
-
- ${titolo.trim() ? `
-<div class="tm-title" style="font-size:${titleSize};letter-spacing:6px;font-family:'Orbitron',sans-serif;text-shadow:0 0 18px ${glowRGBA};">
-  ${titolo}
-</div>` : ""}
-
- <div class="tm-frase" style="margin-top:10px;font-size:${phraseSize};font-style:italic;${styleMap[textStyle]}">
-   ${hideText ? "" : frase}
+  ">
+    ${getPreviewHTML(previewUrl, previewType)}
   </div>
 
-  ${emoj ? `<div style="margin-top:14px;font-size:26px;letter-spacing:10px;">${emoj}</div>` : ""}
+  <div class="gif-card-body" style="padding:16px;color:white;font-family:Arial,sans-serif;">
 
-  ${mainImgHTML}
+    <div style="
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:999px;
+      background:rgba(0,246,255,.12);
+      color:#8dfcff;
+      font-size:12px;
+      border:1px solid rgba(0,246,255,.25);
+      margin-bottom:10px;
+    ">${esc(category)}</div>
 
-  ${frase2 ? `<div class="tm-frase2" style="margin-top:20px;font-size:18px;opacity:.92;">${frase2}</div>` : ""}
+    <div style="
+      font-size:22px;
+      font-weight:bold;
+      margin-bottom:8px;
+      text-shadow:0 0 16px rgba(0,246,255,.28);
+    ">${esc(title)}</div>
 
-  ${miniHTML}
+    <div style="
+      color:#cbd5e1;
+      line-height:1.55;
+      margin-bottom:14px;
+    ">${esc(desc)}</div>
 
-  ${mediaHTML}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="${esc(cardUrl)}" target="_blank" rel="noopener" style="
+        padding:10px 14px;
+        border-radius:999px;
+        background:linear-gradient(90deg,#00f6ff,#b06cff);
+        color:white;
+        text-decoration:none;
+        font-weight:bold;
+      ">Apri Card</a>
 
-  ${firma.trim() ? `
-<div class="tm-firma" style="margin-top:30px;font-size:16px;opacity:.85;">
-  ${firma}
-</div>` : ""}
+      <button onclick="navigator.clipboard.writeText('${esc(cardUrl)}')" style="
+        padding:10px 14px;
+        border:none;
+        border-radius:999px;
+        background:#111827;
+        color:white;
+        cursor:pointer;
+        font-weight:bold;
+      ">Copia Link</button>
+
+      <a href="${esc(wa)}" target="_blank" rel="noopener" style="
+        padding:10px 14px;
+        border-radius:999px;
+        background:linear-gradient(90deg,#25d366,#4bf58a);
+        color:#052e16;
+        text-decoration:none;
+        font-weight:bold;
+      ">WhatsApp</a>
+    </div>
+
+  </div>
+</div>`.trim();
+}
+
+function generateTab(){
+
+  const cardUrl =
+    document.getElementById("cardUrl").value.trim();
+
+  const title =
+    document.getElementById("title").value.trim() || "Temeria Card";
+
+  const category =
+    document.getElementById("category").value;
+
+  const desc =
+    document.getElementById("desc").value.trim();
+
+  const wa =
+    "https://wa.me/?text=" +
+    encodeURIComponent(cardUrl);
+
+  const html = `
+<div class="gif-card-tab" style="
+  background:
+    linear-gradient(135deg,#0b1020,#151a33);
+
+  border:1px solid rgba(0,246,255,.22);
+
+  border-radius:22px;
+
+  overflow:hidden;
+
+  max-width:420px;
+
+  margin:auto;
+
+  box-shadow:
+    0 0 35px rgba(0,246,255,.08),
+    0 0 55px rgba(176,108,255,.10);
+">
+
+  <!-- CARD FORGE -->
+
+  <iframe
+    src="${esc(cardUrl)}"
+
+    loading="lazy"
+
+    style="
+      width:100%;
+      height:320px;
+
+      border:none;
+
+      display:block;
+
+      background:#000;
+    ">
+  </iframe>
+
+  <!-- INFO -->
+
+  <div style="
+    padding:16px;
+
+    color:white;
+
+    font-family:Arial,sans-serif;
+  ">
+
+    <!-- CATEGORIA -->
+
+    <div style="
+      display:inline-block;
+
+      padding:5px 10px;
+
+      border-radius:999px;
+
+      background:rgba(0,246,255,.12);
+
+      color:#8dfcff;
+
+      font-size:12px;
+
+      border:1px solid rgba(0,246,255,.25);
+
+      margin-bottom:10px;
+    ">
+      ${esc(category)}
+    </div>
+
+    <!-- TITOLO -->
+
+    <div style="
+      font-size:22px;
+
+      font-weight:bold;
+
+      margin-bottom:8px;
+
+      text-shadow:
+        0 0 16px rgba(0,246,255,.28);
+    ">
+      ${esc(title)}
+    </div>
+
+    <!-- DESCRIZIONE -->
+
+    <div style="
+      color:#cbd5e1;
+
+      line-height:1.55;
+
+      margin-bottom:14px;
+    ">
+      ${esc(desc)}
+    </div>
+
+    <!-- BOTTONI -->
+
+    <div style="
+      display:flex;
+
+      gap:8px;
+
+      flex-wrap:wrap;
+    ">
+
+      <a
+        href="${esc(cardUrl)}"
+
+        target="_blank"
+
+        rel="noopener"
+
+        style="
+          padding:10px 14px;
+
+          border-radius:999px;
+
+          background:
+            linear-gradient(90deg,#00f6ff,#b06cff);
+
+          color:white;
+
+          text-decoration:none;
+
+          font-weight:bold;
+        "
+      >
+        ✨ Apri Card
+      </a>
+
+      <button
+        onclick="navigator.clipboard.writeText('${esc(cardUrl)}')"
+
+        style="
+          padding:10px 14px;
+
+          border:none;
+
+          border-radius:999px;
+
+          background:#111827;
+
+          color:white;
+
+          cursor:pointer;
+
+          font-weight:bold;
+        "
+      >
+        📋 Copia Link
+      </button>
+
+      <a
+        href="${esc(wa)}"
+
+        target="_blank"
+
+        rel="noopener"
+
+        style="
+          padding:10px 14px;
+
+          border-radius:999px;
+
+          background:
+            linear-gradient(90deg,#25d366,#4bf58a);
+
+          color:#052e16;
+
+          text-decoration:none;
+
+          font-weight:bold;
+        "
+      >
+        💬 WhatsApp
+      </a>
+
+    </div>
+
+  </div>
+
 </div>`.trim();
 
-  return card;
+  document.getElementById("codeBox").textContent =
+    html;
+
+  document.getElementById("previewHost").innerHTML =
+    html;
 }
 
-function genera(){
+async function copyCode(){
 
-  const card = buildCardHTML();
+  const code =
+    document.getElementById("codeBox").textContent;
 
-  const host =
-    document.getElementById("previewHost");
-
-  if(host.innerHTML !== card){
-    host.innerHTML = card;
+  if(!code.trim()){
+    generateTab();
   }
 
-  document.getElementById("codeBox").textContent = card;
-
-  saveFieldsToLocal();
-
-  const id = (document.getElementById("ytid_auto").value||"").trim() || (document.getElementById("ytid_btn").value||"").trim();
-  setThumb(id);
-}
-
-async function copiaCodice(){
-  const txt = document.getElementById("codeBox").textContent || "";
-  if(!txt.trim()){
-    alert("Nessun codice da copiare. Premi prima 'Genera Card'.");
-    return;
-  }
-  const ok = await safeCopyText(txt);
-  alert(ok ? "Codice copiato!" : "Copia non riuscita. Seleziona e copia manualmente.");
-}
-
-function salvaCard(){
-  const card = document.getElementById("codeBox").textContent || "";
-  if(!card.trim()){
-    alert("Nessuna card generata. Premi prima 'Genera Card'.");
-    return;
-  }
-  const theme = getThemeFromUI();
-  const full = `<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Temeria Media Forge Card</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800&display=swap" rel="stylesheet">
-</head>
-<body style="margin:0;background:${theme.bg};padding:18px;font-family:Trebuchet MS, Arial, sans-serif;">
-${card}
-</body>
-</html>`;
-  downloadText("temeria_media_forge_card.html", full);
-}
-function salvaGenerator(){
-  downloadText("temeria_media_forge_ultra.html", document.documentElement.outerHTML);
-}
-
-function resetCampi(){
-  if(!confirm("Resetto tutti i campi e immagini caricate?")) return;
-
-  gifDataURL = "";
-  miniDataURL = "";
-  document.getElementById("giffile").value = "";
-  document.getElementById("minifile").value = "";
-  document.getElementById("imglink").value = "";
-  document.getElementById("minilink").value = "";
-
-  document.getElementById("titolo").value = "";
-document.getElementById("frase").value = "";
-  document.getElementById("frase2").value = "";
-  document.getElementById("emoticons").value = "";
-  document.getElementById("textStyle").value = "normal";
- document.getElementById("cardStyle").value = "social_white";
-  document.getElementById("outputMode").value = "image_focus";
-
-  document.getElementById("gifurl").value = "https://i.postimg.cc/x8FrS9TM/Nyang-Piumy-(1).gif";
-  document.getElementById("minigif").value = "";
-
-  document.getElementById("ytid_auto").value = "pa4mTtiy4Lw";
-  document.getElementById("ytid_btn").value = "";
-  document.getElementById("mp3url").value = "";
-  document.getElementById("audioMode").value = "yt_auto";
-  document.getElementById("videourl").value = "";
- document.getElementById("firma").value = "";
-
-  document.getElementById("importBox").value = "";
-  document.getElementById("previewHost").innerHTML = "";
-  document.getElementById("codeBox").textContent = "";
-
-document.getElementById("themePreset").value = "custom";
-
-document.getElementById("c_bg").value = "#ffffff";
-document.getElementById("c_txt").value = "#111111";
-
-document.getElementById("c_accent").value = "#ffffff";
-document.getElementById("c_accent2").value = "#ffffff";
-document.getElementById("c_accent3").value = "#ffffff";
-document.getElementById("c_accent4").value = "#ffffff";
-
-document.getElementById("glowPower").value = "0";
-
-onCustomChange();
-
-  autoG();
-}
-
-/* =========================
-   Import “best effort”
-========================= */
-function importaDaHTML(){
-  const raw = (document.getElementById("importBox").value || "").trim();
-  if(!raw){
-    alert("Incolla prima l'HTML della card.");
-    return;
-  }
-
-  const titolo = raw.match(/class="tm-title"[^>]*>([\s\S]*?)<\/div>/i)?.[1]?.trim();
-  if(titolo) document.getElementById("titolo").value = titolo;
-
-  const frase = raw.match(/class="tm-frase"[^>]*>([\s\S]*?)<\/div>/i)?.[1];
-  if(frase){
-    const txt = frase.replace(/<br\s*\/?>/gi,"\n").replace(/<\/?[^>]+>/g,"").trim();
-    if(txt) document.getElementById("frase").value = txt;
-  }
-
-  const frase2 = raw.match(/class="tm-frase2"[^>]*>([\s\S]*?)<\/div>/i)?.[1];
-  if(frase2){
-    const txt = frase2.replace(/<br\s*\/?>/gi,"\n").replace(/<\/?[^>]+>/g,"").trim();
-    if(txt) document.getElementById("frase2").value = txt;
-  }
-
-  const em = raw.match(/font-size:26px[^>]*>\s*([^<]+)</i)?.[1]?.trim();
-  if(em) document.getElementById("emoticons").value = em;
-
-  const linkMain = raw.match(/<a[^>]*href="([^"]+)"[^>]*>\s*<img[^>]*src="([^"]+)"/i);
-  if(linkMain?.[1]) document.getElementById("imglink").value = linkMain[1];
-
-  const img = raw.match(/<img\s+[^>]*src="([^"]+)"/i)?.[1]?.trim();
-  if(img){
-    if(img.startsWith("data:image/")){
-      gifDataURL = img;
-      document.getElementById("gifurl").value = "";
-    }else{
-      gifDataURL = "";
-      document.getElementById("gifurl").value = img;
-    }
-  }
-
-  const imgs = [...raw.matchAll(/<img\s+[^>]*src="([^"]+)"/gi)].map(m=>m[1]);
-  if(imgs.length >= 2){
-    const mini = imgs[1];
-    if(mini.startsWith("data:image/")){
-      miniDataURL = mini;
-      document.getElementById("minigif").value = "";
-    }else{
-      miniDataURL = "";
-      document.getElementById("minigif").value = mini;
-    }
-  }
-
-  const links = [...raw.matchAll(/<a[^>]*href="([^"]+)"[^>]*>\s*<img/gi)].map(m=>m[1]);
-  if(links.length >= 2) document.getElementById("minilink").value = links[1];
-
-  const yta = raw.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{6,})\?autoplay=1&loop=1&playlist=\1/i)?.[1];
-  if(yta) document.getElementById("ytid_auto").value = yta;
-
-const ytMatches = [
-  ...raw.matchAll(/youtube\.com\/embed\/([a-zA-Z0-9_-]{6,})\?autoplay=1/gi)
-];
-
-if(ytMatches.length > 1){
-  const ytb = ytMatches[1][1];
-
-  if(ytb && ytb !== document.getElementById("ytid_auto").value){
-    document.getElementById("ytid_btn").value = ytb;
-  }
-}
-
-  const mp3 = raw.match(/<source\s+src="([^"]+\.mp3[^"]*)"/i)?.[1]?.trim();
-  if(mp3) document.getElementById("mp3url").value = mp3;
-
-  const vid = raw.match(/<video[^>]*src="([^"]+)"/i)?.[1]?.trim();
-  if(vid) document.getElementById("videourl").value = vid;
-
-  const firma = raw.match(/class="tm-firma"[^>]*>([\s\S]*?)<\/div>/i)?.[1]?.trim();
-  if(firma) document.getElementById("firma").value = firma;
-
-  autoG();
-  alert("Import completato (best effort). Controlla i campi.");
-}
-
-/* =========================
-   UPDATE SYSTEM (manifest.json)
-========================= */
-let _lastManifest = null;
-
-function semverToParts(v){
-  const m = String(v||"0.0.0").trim().match(/^(\d+)\.(\d+)\.(\d+)/);
-  if(!m) return [0,0,0];
-  return [parseInt(m[1],10), parseInt(m[2],10), parseInt(m[3],10)];
-}
-function semverCompare(a,b){
-  const A=semverToParts(a), B=semverToParts(b);
-  for(let i=0;i<3;i++){
-    if(A[i]>B[i]) return 1;
-    if(A[i]<B[i]) return -1;
-  }
-  return 0;
-}
-function setUpdateStatus(txt){
-  const el = document.getElementById("updateStatus");
-  if(el) el.textContent = txt;
-}
-function setUpdateInfo(html){
-  const el = document.getElementById("updateInfo");
-  if(el) el.innerHTML = html || "";
-}
-
-async function checkForUpdates(){
-  const url = (document.getElementById("updateManifestUrl")?.value || "").trim() ||
-              (loadStateV2()?.manifestUrl || localStorage.getItem(LEGACY_MANIFEST_URL) || "");
-
-  if(!url){
-    setUpdateStatus("Stato: inserisci un URL manifest.");
-    return;
-  }
-
-  setUpdateStatus("Stato: controllo aggiornamenti…");
-  setUpdateInfo("");
-  _lastManifest = null;
-
-  // salva manifestUrl
-  localStorage.setItem(LEGACY_MANIFEST_URL, url);
-  mergeStateV2({ manifestUrl: url });
+  const finalCode =
+    document.getElementById("codeBox").textContent;
 
   try{
-    const u = url.includes("?") ? `${url}&t=${Date.now()}` : `${url}?t=${Date.now()}`;
-    const ctrl = new AbortController();
-    const t = setTimeout(()=>ctrl.abort(), 6500);
 
-    const res = await fetch(u, {signal: ctrl.signal, cache:"no-store"});
-    clearTimeout(t);
+    await navigator.clipboard.writeText(finalCode);
 
-    if(!res.ok) throw new Error("HTTP " + res.status);
-    const manifest = await res.json();
+    alert("Codice copiato!");
 
-    if(!manifest || typeof manifest !== "object") throw new Error("Manifest non valido");
-    if(!manifest.version || !manifest.url) throw new Error("Manifest incompleto (serve version + url)");
+  }catch(e){
 
-    _lastManifest = manifest;
-
-    const cmp = semverCompare(manifest.version, APP_VERSION);
-    const btn = document.getElementById("btnOpenLatest");
-
-    if(cmp <= 0){
-      setUpdateStatus(`Stato: sei già aggiornato ✅ (attuale ${APP_VERSION}, manifest ${manifest.version})`);
-      if(btn) btn.disabled = true;
-      setUpdateInfo("");
-      return;
-    }
-
-    if(btn) btn.disabled = false;
-
-    const changelog = Array.isArray(manifest.changelog)
-      ? `<ul style="margin:8px 0 0;padding-left:18px;">${manifest.changelog.map(x=>`<li>${escapeHTML(String(x))}</li>`).join("")}</ul>`
-      : "";
-
-    setUpdateStatus(`Stato: aggiornamento disponibile 🚀 (${APP_VERSION} → ${manifest.version})`);
-    setUpdateInfo(`
-      <div style="margin-top:6px;">
-        <div><b>Nome:</b> ${escapeHTML(manifest.name || "TGIFMOON")}</div>
-        <div><b>URL:</b> ${escapeHTML(manifest.url)}</div>
-        ${changelog}
-        <div class="miniHint" style="margin-top:8px;">
-          Aprendo la nuova versione, i tuoi dati verranno migrati automaticamente via <code>${STATE_KEY_V2}</code>.
-        </div>
-      </div>
-    `);
-
-  }catch(err){
-    setUpdateStatus("Stato: errore update ❌ (" + (err?.message || "unknown") + ")");
-    setUpdateInfo("");
-    const btn = document.getElementById("btnOpenLatest");
-    if(btn) btn.disabled = true;
+    alert(
+      "Copia non riuscita. Copia manualmente dal box."
+    );
   }
 }
 
-function openLatestVersion(){
-  if(!_lastManifest || !_lastManifest.url){
-    alert("Prima fai 'Controlla aggiornamenti'.");
-    return;
+function downloadHTML(){
+
+  if(
+    !document.getElementById("codeBox")
+    .textContent
+    .trim()
+  ){
+    generateTab();
   }
-  // prima salva tutto
-  saveFieldsToLocal();
-  saveThemeToLocal();
-  saveStateV2(loadStateV2() || migrateLegacyToV2());
 
-  window.open(_lastManifest.url, "_blank", "noopener");
-}
+  const code =
+    document.getElementById("codeBox").textContent;
 
-/* Backup / Restore (V2) */
-function exportBackup(){
-  const state = loadStateV2() || migrateLegacyToV2();
-  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  const blob =
+    new Blob([code], {type:"text/html"});
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const a =
+    document.createElement("a");
+
   a.href = url;
-a.download = "temeria_media_forge_backup_v2.json";
+
+  a.download = "gif-card-tab.html";
+
   document.body.appendChild(a);
+
   a.click();
+
   a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url), 1200);
+
+  URL.revokeObjectURL(url);
 }
 
-function importBackup(){
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "application/json";
-  input.onchange = async ()=>{
-    const f = input.files && input.files[0];
-    if(!f) return;
-    const txt = await f.text();
-    const st = safeJSONParse(txt, null);
-    if(!st || typeof st !== "object" || st.schema !== 2){
-      alert("Backup non valido (serve schema 2).");
-      return;
+function resetForm(){
+
+  [
+    "cardUrl",
+    "title",
+    "desc"
+  ].forEach(id => {
+
+    const el =
+      document.getElementById(id);
+
+    if(el){
+      el.value = "";
     }
-    saveStateV2(st);
 
-    // compat
-    try{
-      if(st.fields) localStorage.setItem(LEGACY_FIELDS, JSON.stringify(st.fields));
-      if(st.theme)  localStorage.setItem(LEGACY_THEME, JSON.stringify(st.theme));
-      if(st.history) localStorage.setItem(LEGACY_HIST, JSON.stringify(st.history));
-      if(st.manifestUrl) localStorage.setItem(LEGACY_MANIFEST_URL, st.manifestUrl);
-    }catch(e){}
+  });
 
-    alert("Backup importato! Ricarico…");
-    location.reload();
-  };
-  input.click();
+  document.getElementById("category").value =
+    "Buongiorno";
+
+  document.getElementById("previewHost").innerHTML =
+    "";
+
+  document.getElementById("codeBox").textContent =
+    "";
 }
 
-/* =========================
-   Auto-genera (live)
-========================= */
-let autoGenerateEnabled = true;
+document
+.querySelectorAll("input,textarea,select")
+.forEach(el=>{
 
-const autoG = debounce(()=>{
-  if(!autoGenerateEnabled) return;
-  genera();
-}, 350);
-function toggleAutoGenerate(){
-  autoGenerateEnabled = !autoGenerateEnabled;
-
-  const kpi = document.getElementById("kpiAuto");
-  if(kpi){
-    kpi.textContent = autoGenerateEnabled
-      ? "Auto-genera: ON"
-      : "Auto-genera: OFF";
-  }
-
-  alert(
-    autoGenerateEnabled
-      ? "Auto-genera riattivato."
-      : "Auto-genera disattivato. Usa Aggiorna Preview manualmente."
+  el.addEventListener(
+    "input",
+    generateTab
   );
-}
-/* =========================
-   Init Ultra + Migrazione
-========================= */
-(function initUltra(){
-  // 1) migra subito (se serve)
-  const v2 = migrateLegacyToV2();
 
-  // 2) manifest url UI
-  const m = document.getElementById("updateManifestUrl");
-  if(m){
-    m.value = v2.manifestUrl || localStorage.getItem(LEGACY_MANIFEST_URL) || "";
-    m.addEventListener("input", ()=>{
-      const val = (m.value || "").trim();
-      localStorage.setItem(LEGACY_MANIFEST_URL, val);
-      mergeStateV2({ manifestUrl: val });
-    });
-  }
+  el.addEventListener(
+    "change",
+    generateTab
+  );
+});
 
-  // 3) theme restore
-  const savedTheme = loadThemeFromLocal();
-  if(savedTheme){
-    setCustomPickersFromTheme(savedTheme);
-    document.getElementById("themePreset").value = savedTheme.preset && savedTheme.preset !== "custom" ? savedTheme.preset : "custom";
-    applyThemeVars(savedTheme);
-  }else{
-    document.getElementById("themePreset").value = "cyber_aurora";
-    onPresetChange();
-  }
-
-  // 4) fields restore
-  loadFieldsFromLocal();
-
-  // hook theme UI
-  document.getElementById("themePreset").addEventListener("change", onPresetChange);
-  ["c_bg","c_txt","c_accent","c_accent2","c_accent3","c_accent4","glowPower"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.addEventListener("input", onCustomChange);
-  });
-
-  // hook all inputs for auto-generate + autosave
-const ids = [
-  "titolo","frase","frase2","emoticons",
-  "textStyle","cardStyle","outputMode","cardSize","firma",
-    "gifurl","imglink","minigif","minilink",
-    "ytid_auto","ytid_btn","mp3url","audioMode","videourl",
-    "ytPaste","ytPreset"
-  ];
-  ids.forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    el.addEventListener("input", ()=>{
-      if(id==="ytPaste"){
-        const idd = extractYouTubeId(el.value);
-        if(idd) setThumb(idd);
-      }
-      saveFieldsToLocal();
-      autoG();
-    });
-    el.addEventListener("change", ()=>{
-      if(id==="ytPreset"){
-        const idd = el.value || "";
-        setThumb(idd);
-      }
-      saveFieldsToLocal();
-      autoG();
-    });
-  });
-const cardSelect = document.getElementById("cardStyle");
-if(cardSelect && !cardSelect.querySelector('option[value="social_white"]')){
-  const opt = document.createElement("option");
-  opt.value = "social_white";
-  opt.textContent = "Social White";
-  cardSelect.appendChild(opt);
-}
-  renderHistory();
-  genera();
-})();
+generateTab();
 </script>
 </body>
 </html>
